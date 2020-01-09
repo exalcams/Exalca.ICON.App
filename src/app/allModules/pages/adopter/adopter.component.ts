@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
-import { SRCI, AdapterHView, ADAPTERI } from 'app/models/icon.models';
+import { SRCI, AdapterHView, ADAPTERI, AdapterH } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
 import { Guid } from 'guid-typescript';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -29,12 +29,14 @@ export class AdopterComponent implements OnInit {
   CurrentDate: Date;
   notificationSnackBarComponent: NotificationSnackBarComponent;
   IsProgressBarVisibile: boolean;
-  AdopterCreationFormGroup: FormGroup;
+  AdapterCreationFormGroup: FormGroup;
   AdapterItemColumns: string[] = ['Key', 'Value', 'Action'];
   AdapterItemFormArray: FormArray = this._formBuilder.array([]);
   AdapterItemDataSource = new BehaviorSubject<AbstractControl[]>([]);
   SelectedAdapter: AdapterHView;
   AdapterItemList: ADAPTERI[];
+  AllTypes: string[];
+  AllAdapters: AdapterH[] = [];
   constructor(
     private _router: Router,
     matIconRegistry: MatIconRegistry,
@@ -66,19 +68,89 @@ export class AdopterComponent implements OnInit {
     } else {
       this._router.navigate(['/auth/login']);
     }
-    this.AdopterCreationFormGroup = this._formBuilder.group({
+    this.AdapterCreationFormGroup = this._formBuilder.group({
       Type: ['', Validators.required],
       AdapterItems: this.AdapterItemFormArray
     });
+    this.AllTypes = ['Email', 'FTP'];
+    this.GetAllAdapter();
   }
 
+
+  ResetForm(): void {
+    this.AdapterCreationFormGroup.reset();
+    Object.keys(this.AdapterCreationFormGroup.controls).forEach(key => {
+      this.AdapterCreationFormGroup.get(key).markAsUntouched();
+    });
+  }
+  ResetControl(): void {
+    this.ResetAdapterItems();
+    this.ResetForm();
+    this.SelectedAdapter = new AdapterHView();
+    this.AdapterItemList = [];
+  }
+
+  ClearFormArray = (formArray: FormArray) => {
+    while (formArray.length !== 0) {
+      formArray.removeAt(0);
+    }
+  }
+  ResetAdapterItems(): void {
+    this.ClearFormArray(this.AdapterItemFormArray);
+    this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+  }
+
+  GetAllAdapter(): void {
+    this._adapterService.GetAllAdapter().subscribe(
+      (data) => {
+        this.AllAdapters = data as AdapterH[];
+        if (this.AllAdapters.length && this.AllAdapters.length > 0) {
+          this.LoadSelectedAdapterH(this.AllAdapters[0]);
+        }
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  LoadSelectedAdapterH(adapter: AdapterH): void {
+    this.SelectedAdapter = new AdapterHView();
+    this.SelectedAdapter.AdapterID = adapter.AdapterID;
+    this.SelectedAdapter.Type = adapter.Type;
+    this.AdapterCreationFormGroup.get('Type').patchValue(adapter.AdapterID);
+    this.GetAllAdapterItemsByAdapterID();
+  }
+
+  GetAllAdapterItemsByAdapterID(): void {
+    this._adapterService.GetAllAdapterItemsByAdapterID(this.SelectedAdapter.AdapterID).subscribe(
+      (data) => {
+        this.AdapterItemList = data as ADAPTERI[];
+        this.AdapterItemList.forEach(x => {
+          this.SetItemValues(x);
+        });
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  SetItemValues(adpterItem: ADAPTERI): void {
+    const row = this._formBuilder.group({
+      Key: [adpterItem.Key, Validators.required],
+      Value: [adpterItem.Value, Validators.required],
+    });
+    this.AdapterItemFormArray.insert(0, row);
+    this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+  }
 
   AddAdapterItem(): void {
     this.AddAdapterItemFormGroup();
   }
 
   RemoveAdapterItem(index: number): void {
-    if (this.AdopterCreationFormGroup.enabled) {
+    if (this.AdapterCreationFormGroup.enabled) {
       if (this.AdapterItemFormArray.length > 0) {
         this.AdapterItemFormArray.removeAt(index);
         this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
@@ -91,15 +163,15 @@ export class AdopterComponent implements OnInit {
   AddAdapterItemFormGroup(): void {
     const row = this._formBuilder.group({
       Key: ['', Validators.required],
-      Value: [''],
+      Value: ['', Validators.required],
     });
     this.AdapterItemFormArray.insert(0, row);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
   SubmitClicked(): void {
-    if (this.AdopterCreationFormGroup.valid) {
-      const AdapterItemsArry = this.AdopterCreationFormGroup.get('AdapterItems') as FormArray;
+    if (this.AdapterCreationFormGroup.valid) {
+      const AdapterItemsArry = this.AdapterCreationFormGroup.get('AdapterItems') as FormArray;
       if (AdapterItemsArry.length <= 0) {
         this.notificationSnackBarComponent.openSnackBar('Please add values', SnackBarStatus.danger);
       } else {
@@ -108,7 +180,7 @@ export class AdopterComponent implements OnInit {
         this.OpenConfirmationDialog(Actiontype, Catagory);
       }
     } else {
-      this.ShowValidationErrors(this.AdopterCreationFormGroup);
+      this.ShowValidationErrors(this.AdapterCreationFormGroup);
     }
   }
 
@@ -167,13 +239,10 @@ export class AdopterComponent implements OnInit {
     this.IsProgressBarVisibile = true;
     this._adapterService.CreateAdapter(this.SelectedAdapter).subscribe(
       (data) => {
-        if (data) {
-          // this.SelectedCreatedTemplate.TemplateID = data as number;
-          // this.CreateAdapterParaMapping();
-        } else {
-          this.notificationSnackBarComponent.openSnackBar('Something went wrong', SnackBarStatus.danger);
-        }
+        this.notificationSnackBarComponent.openSnackBar('Adapter details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
+        this.ResetControl();
+        this.GetAllAdapter();
       },
       (err) => {
         console.error(err);
@@ -201,21 +270,24 @@ export class AdopterComponent implements OnInit {
   // }
 
   GetHeaderValues(): void {
-    this.SelectedAdapter = new AdapterHView();
-    this.SelectedAdapter.Type = this.AdopterCreationFormGroup.get('Type').value;
+    // this.SelectedAdapter = new AdapterHView();
+    this.SelectedAdapter.Type = this.AdapterCreationFormGroup.get('Type').value;
   }
 
   GetItemValues(): void {
     this.AdapterItemList = [];
     this.SelectedAdapter.ADAPTERIList = [];
-    const AdapterItemsArr = this.AdopterCreationFormGroup.get('AdapterItems') as FormArray;
+    const AdapterItemsArr = this.AdapterCreationFormGroup.get('AdapterItems') as FormArray;
     AdapterItemsArr.controls.forEach((x, i) => {
       const AdapterItem: ADAPTERI = new ADAPTERI();
+      AdapterItem.AdapterID = this.SelectedAdapter.AdapterID;
       AdapterItem.Key = x.get('Key').value;
       AdapterItem.Value = x.get('Value').value;
       this.SelectedAdapter.ADAPTERIList.push(AdapterItem);
     });
   }
+
+
 
 
 }
