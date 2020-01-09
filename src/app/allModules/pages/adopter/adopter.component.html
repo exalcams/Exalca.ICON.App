@@ -1,0 +1,80 @@
+<div id="chat" class="page-layout carded fullwidth">
+  <!-- <div class="top-bg accent"></div> -->
+  
+  <div class="center normal" style="margin-top: -27px !important;">
+    <div  style="height: 50px !important; margin-bottom: 2px !important;">
+      <mat-card fxFlex="30" style="background-color: #fffdf9;border-radius: 5px !important;">
+        <div class="h2 mb-24" style="margin-top: -12px; margin-left: 88px;"><b>Adopter</b></div>
+      </mat-card>
+      <mat-card fxFlex="70" style="background-color: #fffdf9;border-radius: 5px !important;"></mat-card>
+    </div>
+    <div fxLayout class="content-card">
+      <div fxFlex="30" class="side-bar">
+        <div class="sidenav-header">
+          <div class="mat-card  borderRightSide1"
+          [class.highLight]="'values'">
+          <!-- <div style="margin-top: 5px;" class="round1V">
+          </div> -->
+          <div>
+            <span style="font-size: 18px">1001</span><span style="font-size: 12px" style="margin-left: 160px;">08/01/2019</span>
+          </div>
+          <div style="font-size: 11px;margin-bottom: 5px">
+            <span style="margin-right: 10px">madhav.anand@exalca.com</span>
+          </div>
+        </div>
+        </div>
+        <!-- <mat-divider></mat-divider> -->
+
+      </div>
+      <div class="borderRight1"></div>
+      <div fxFlex="70" class="side-bar">
+        <div class="sidenav-content py-16" fusePerfectScrollbar fxFlex fxLayout="column">
+          <form class="mat-card p-12" autocomplete="off" fxLayout="column" fxLayoutAlign="start"
+            fxFlex="1 0 auto" name="form" [formGroup]="fileMapperMainFormGroup" novalidate>
+            <div class="h2 mb-24"><b>Adopter</b></div>
+            <div fxLayout="row" fxLayoutAlign="start">
+              <!-- <mat-form-field class="pl-8" fxFlex="50">
+                <input matInput placeholder="Title" >
+                
+              </mat-form-field> -->
+              <mat-form-field class="pl-8" fxFlex="50">
+                <mat-select placeholder="Type"></mat-select>
+              </mat-form-field>
+            </div>
+            <div>
+           <span class="h3 mb-24 borderBottom1"><b>Inbox</b></span>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="start">
+            <mat-form-field class="pl-8" fxFlex="50">
+              <input matInput placeholder="InboxId" >
+            </mat-form-field>
+            <mat-form-field class="pl-8" fxFlex="50">
+              <mat-select placeholder="Protocol" >
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="start">
+            <mat-form-field class="pl-8" fxFlex="50">
+              <input matInput type="password" placeholder="Password" >
+            </mat-form-field>
+            <mat-form-field class="pl-8" fxFlex="50">
+              <input matInput type="password" placeholder="Confirm Password" >
+            </mat-form-field>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="start">
+            <mat-form-field class="pl-8" fxFlex="50">
+              <input matInput  placeholder="Host" >
+            </mat-form-field>
+            <mat-form-field class="pl-8" fxFlex="50">
+              <input matInput  placeholder="Port" >
+            </mat-form-field>
+          </div>
+          <!-- <div>
+            <span class="h3 mb-24 borderBottom1"><b>Extraction Rule</b></span>
+           </div> -->
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
