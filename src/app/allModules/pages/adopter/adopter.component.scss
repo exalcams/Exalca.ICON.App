@@ -9,9 +9,9 @@
     @include media-breakpoint-down(md) {
       padding: 0 !important;
     }
-.content-pos{
-    margin-top: -27px !important;
-}
+    .content-pos {
+      margin-top: -27px !important;
+    }
     .content-card {
       display: flex;
       flex: 1;
@@ -57,7 +57,7 @@
   .borderBottom1 {
     border-bottom: 1px solid #efb577;
     border-radius: 1px;
-    
+
     // opacity: 0.1;
     // margin-left: -20px;
     // margin-top: 35px;
@@ -172,8 +172,8 @@
   }
   table {
     width: 100%;
-    th{
-     // background: #082f7d;
+    th {
+      // background: #082f7d;
       color: white;
       //font-family: Ubuntu;
       // padding-left: 25px;
@@ -181,16 +181,30 @@
       padding: 5px;
       border-right: 1px solid #e0e0e0;
       font-size: 10px;
-
     }
-    td{
-        padding-left: 15px;
-        border-right: 1px solid #ffffff;
-        padding: 5px;
-        font-size: 10px;
+    td {
+      padding-left: 15px;
+      border-right: 1px solid #ffffff;
+      padding: 5px;
+      font-size: 10px;
     }
-    tr{
+    tr {
       height: 40px;
     }
+  }
+
+  .boldClass {
+    font-weight: bold;
+  }
+  .boldItalicClass {
+    @extend .boldClass;
+    font-style: italic;
+  }
+  .labelClass {
+    @extend .boldClass;
+    margin-top: 8px;
+  }
+  .imgClass {
+    height: 20px;
   }
 }
