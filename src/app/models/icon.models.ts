@@ -4,6 +4,10 @@ export class AdapterH {
     Type: string;
     Title: string;
     Status: boolean;
+    CreadtedOn: Date;
+    CreatedBy: string;
+    ModifiedOn: Date;
+    ModifiedBy: string;
 }
 export class SRCI {
     srcID: string;
@@ -16,6 +20,10 @@ export class ADAPTERI {
     AdapterID: Guid;
     Key: string;
     Value: string;
+    CreadtedOn: Date;
+    CreatedBy: string;
+    ModifiedOn: Date;
+    ModifiedBy: string;
 }
 export class ADAPTERTYPEC {
     Id: Guid;
@@ -70,5 +78,18 @@ export class AdapterHView {
     Type: string;
     Title: string;
     Status: boolean;
-    ADAPTERIList: ADAPTERI[]
+    CreadtedOn: Date;
+    CreatedBy: string;
+    ModifiedOn: Date;
+    ModifiedBy: string;
+    ADAPTERIList: ADAPTERIView[];
+}
+export class ADAPTERIView {
+    AdapterID: Guid;
+    Key: string;
+    Value: string;
+    CreadtedOn: Date;
+    CreatedBy: string;
+    ModifiedOn: Date;
+    ModifiedBy: string;
 }

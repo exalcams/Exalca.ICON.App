@@ -5,7 +5,8 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
-import { AdapterHView } from 'app/models/icon.models';
+import { AdapterHView, AdapterH, ADAPTERI } from 'app/models/icon.models';
+import { Guid } from 'guid-typescript';
 
 @Injectable({
   providedIn: 'root'
@@ -45,10 +46,26 @@ export class AdapterService {
       .pipe(catchError(this.errorHandler));
   }
 
-  // GetAllMenuApp(): Observable<MenuApp[] | string> {
-  //   return this._httpClient.get<MenuApp[]>(`${this.baseAddress}api/Master/GetAllApps`)
-  //     .pipe(catchError(this.errorHandler));
-  // }
+  UpdateAdapter(adapterHView: AdapterHView): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Adapter/UpdateAdapter`,
+      adapterHView,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetAllAdapter(): Observable<AdapterH[] | string> {
+    return this._httpClient.get<AdapterH[]>(`${this.baseAddress}api/Adapter/GetAllAdapter`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetAllAdapterItemsByAdapterID(AdapterID: Guid): Observable<ADAPTERI[] | string> {
+    return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Adapter/GetAllAdapterItemsByAdapterID?AdapterID=${AdapterID}`)
+      .pipe(catchError(this.errorHandler));
+  }
 
   // UpdateMenuApp(menuApp: MenuApp): Observable<any> {
   //   return this._httpClient.post<any>(`${this.baseAddress}api/Master/UpdateApp`,
@@ -72,5 +89,5 @@ export class AdapterService {
   //     .pipe(catchError(this.errorHandler));
   // }
 
- 
+
 }
