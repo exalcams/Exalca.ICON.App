@@ -6,7 +6,9 @@
       <mat-card fxFlex="30" style="background-color: #fffdf9;border-radius: 5px !important;">
         <div class="h2 mb-24" style="margin-top: -12px; margin-left: 88px;"><b>Source Details</b></div>
       </mat-card>
-      <mat-card fxFlex="70" style="background-color: #fffdf9;border-radius: 5px !important;"></mat-card>
+      <mat-card fxFlex="70" style="background-color: #fffdf9;border-radius: 5px !important;">
+        <button mat-flat-button  style="margin-top: -16px;float: right; background-color: #efb577;">Test Source </button>
+      </mat-card>
     </div>
     <div fxLayout class="content-card">
       <div fxFlex="30" class="side-bar">
@@ -73,7 +75,9 @@
             <span class="h3 mb-24 borderBottom1"><b>Extraction Rule</b></span>
            </div>
            <div>
+
             <mat-card>
+              <button mat-fab color="primary" class="roundedbuttonstyle"><mat-icon style="margin-top: -10px;">add</mat-icon></button>
               <table style="margin-top: 10px;" mat-table [dataSource]="SourceDataSource" matSort>
   
                 <ng-container matColumnDef="Item">
