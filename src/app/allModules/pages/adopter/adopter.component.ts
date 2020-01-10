@@ -41,6 +41,7 @@ export class AdopterComponent implements OnInit {
   AdapterItemFormArray: FormArray = this._formBuilder.array([]);
   AdapterItemDataSource = new BehaviorSubject<AbstractControl[]>([]);
   SelectedAdapter: AdapterHView;
+  SelectedAdapterID: number;
   AdapterItemList: ADAPTERI[];
   AllTypes: string[];
   AllAdapters: AdapterH[] = [];
@@ -58,6 +59,7 @@ export class AdopterComponent implements OnInit {
     this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
     this.IsProgressBarVisibile = false;
     this.SelectedAdapter = new AdapterHView();
+    this.SelectedAdapterID = 0;
   }
 
   ngOnInit(): void {
@@ -93,7 +95,9 @@ export class AdopterComponent implements OnInit {
   ResetControl(): void {
     this.ResetAdapterItems();
     this.ResetForm();
+    this.SelectedAdapterID = 0;
     this.SelectedAdapter = new AdapterHView();
+    this.SelectedAdapter.ADAPTERIList = [];
     this.AdapterItemList = [];
   }
 
@@ -122,10 +126,12 @@ export class AdopterComponent implements OnInit {
   }
 
   LoadSelectedAdapterH(adapter: AdapterH): void {
+    this.SelectedAdapterID = adapter.AdapterID;
     this.SelectedAdapter = new AdapterHView();
     this.SelectedAdapter.AdapterID = adapter.AdapterID;
     this.SelectedAdapter.Type = adapter.Type;
-    this.AdapterCreationFormGroup.get('Type').patchValue(adapter.AdapterID);
+    this.AdapterCreationFormGroup.get('Type').patchValue(adapter.Type);
+    this.ResetAdapterItems();
     this.GetAllAdapterItemsByAdapterID();
   }
 
@@ -148,7 +154,8 @@ export class AdopterComponent implements OnInit {
       Key: [adpterItem.Key, Validators.required],
       Value: [adpterItem.Value, Validators.required],
     });
-    this.AdapterItemFormArray.insert(0, row);
+    this.AdapterItemFormArray.push(row);
+    // this.AdapterItemFormArray.insert(0, row);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
@@ -172,7 +179,8 @@ export class AdopterComponent implements OnInit {
       Key: ['', Validators.required],
       Value: ['', Validators.required],
     });
-    this.AdapterItemFormArray.insert(0, row);
+    this.AdapterItemFormArray.push(row);
+    // this.AdapterItemFormArray.insert(0, row);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
@@ -182,9 +190,15 @@ export class AdopterComponent implements OnInit {
       if (AdapterItemsArry.length <= 0) {
         this.notificationSnackBarComponent.openSnackBar('Please add values', SnackBarStatus.danger);
       } else {
-        const Actiontype = 'Create';
-        const Catagory = 'Template';
-        this.OpenConfirmationDialog(Actiontype, Catagory);
+        if (this.SelectedAdapter.AdapterID) {
+          const Actiontype = 'Update';
+          const Catagory = 'Template';
+          this.OpenConfirmationDialog(Actiontype, Catagory);
+        } else {
+          const Actiontype = 'Create';
+          const Catagory = 'Template';
+          this.OpenConfirmationDialog(Actiontype, Catagory);
+        }
       }
     } else {
       this.ShowValidationErrors(this.AdapterCreationFormGroup);
@@ -204,7 +218,9 @@ export class AdopterComponent implements OnInit {
         if (result) {
           if (Actiontype === 'Create') {
             this.CreateAdapter();
-            // console.log('valid');
+          }
+          else if (Actiontype === 'Update') {
+            this.UpdateAdapter();
           }
           else if (Actiontype === 'Approve') {
             // this.ApproveHeader();
@@ -245,6 +261,25 @@ export class AdopterComponent implements OnInit {
     this.GetItemValues();
     this.IsProgressBarVisibile = true;
     this._adapterService.CreateAdapter(this.SelectedAdapter).subscribe(
+      (data) => {
+        this.notificationSnackBarComponent.openSnackBar('Adapter details created successfully', SnackBarStatus.success);
+        this.IsProgressBarVisibile = false;
+        this.ResetControl();
+        this.GetAllAdapter();
+      },
+      (err) => {
+        console.error(err);
+        this.IsProgressBarVisibile = false;
+        this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
+      }
+    );
+  }
+
+  UpdateAdapter(): void {
+    this.GetHeaderValues();
+    this.GetItemValues();
+    this.IsProgressBarVisibile = true;
+    this._adapterService.UpdateAdapter(this.SelectedAdapter).subscribe(
       (data) => {
         this.notificationSnackBarComponent.openSnackBar('Adapter details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;

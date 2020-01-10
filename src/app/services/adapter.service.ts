@@ -62,7 +62,7 @@ export class AdapterService {
       .pipe(catchError(this.errorHandler));
   }
 
-  GetAllAdapterItemsByAdapterID(AdapterID: Guid): Observable<ADAPTERI[] | string> {
+  GetAllAdapterItemsByAdapterID(AdapterID: number): Observable<ADAPTERI[] | string> {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Adapter/GetAllAdapterItemsByAdapterID?AdapterID=${AdapterID}`)
       .pipe(catchError(this.errorHandler));
   }
