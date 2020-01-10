@@ -1,6 +1,6 @@
 import { Guid } from 'guid-typescript';
 export class AdapterH {
-    AdapterID: Guid;
+    AdapterID: number;
     Type: string;
     Title: string;
     Status: boolean;
@@ -18,7 +18,8 @@ export class SRCI {
 }
 
 export class ADAPTERI {
-    AdapterID: Guid;
+    ID: number;
+    AdapterID: number;
     Key: string;
     Value: string;
     CreadtedOn: Date;
@@ -75,7 +76,7 @@ export class TRFI {
 }
 
 export class AdapterHView {
-    AdapterID: Guid;
+    AdapterID: number;
     Type: string;
     Title: string;
     Status: boolean;
@@ -86,7 +87,8 @@ export class AdapterHView {
     ADAPTERIList: ADAPTERIView[];
 }
 export class ADAPTERIView {
-    AdapterID: Guid;
+    ID: number;
+    AdapterID: number;
     Key: string;
     Value: string;
     CreadtedOn: Date;

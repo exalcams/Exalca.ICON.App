@@ -161,8 +161,8 @@
   .highLight {
     // background: lightgray;
     border-left: 5px solid #efb577;
-    margin-left: 20px;
-    margin-top: 8px;
+    // margin-left: 20px;
+    // margin-top: 8px;
   }
   .round1V {
     width: 10px;
@@ -180,13 +180,13 @@
       background-color: #121214;
       padding: 5px;
       border-right: 1px solid #e0e0e0;
-      font-size: 10px;
+      font-size: 12px;
     }
     td {
       padding-left: 15px;
       border-right: 1px solid #ffffff;
       padding: 5px;
-      font-size: 10px;
+      font-size: 12px;
     }
     tr {
       height: 40px;
@@ -209,5 +209,9 @@
   }
   .errorClass {
     color: red !important;
+  }
+  .cardHeader {
+    background-color: #fffdf9;
+    height: 50px;
   }
 }
