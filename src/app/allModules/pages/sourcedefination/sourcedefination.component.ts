@@ -1,7 +1,18 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { fuseAnimations } from '@fuse/animations';
-import { MatTableDataSource } from '@angular/material';
-import { SRCI } from 'app/models/icon.models';
+import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog } from '@angular/material';
+import { SRCI, SourceView } from 'app/models/icon.models';
+import { FormArray, AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject } from 'rxjs';
+import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
+import { AuthenticationDetails } from 'app/models/master';
+import { Guid } from 'guid-typescript';
+import { Router } from '@angular/router';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MasterService } from 'app/services/master.service';
+import { AdapterService } from 'app/services/adapter.service';
+import { DatePipe } from '@angular/common';
+import { SnackBarStatus } from 'app/notifications/notification-snack-bar/notification-snackbar-status-enum';
 
 @Component({
   selector: 'app-sourcedefination',
@@ -11,17 +22,87 @@ import { SRCI } from 'app/models/icon.models';
   animations: fuseAnimations
 })
 export class SourcedefinationComponent implements OnInit {
-  displayedColumns: string[] = [
+  AdapterItemColumns: string[] = [
     'Item',
     'Field1',
     'Field2',
     'FileExt',
+    'Action',
   ];
+  authenticationDetails: AuthenticationDetails;
+  MenuItems: string[];
+  CurrentUserName: string;
+  CurrentUserID: Guid;
+  CurrentUserRole = '';
+  CurrentDate: Date;
+  AdopterCreationFormGroup: FormGroup;
+  AdapterItemFormArray: FormArray = this._formBuilder.array([]);
+  AdapterItemDataSource = new BehaviorSubject<AbstractControl[]>([]);
+  SelectedAdapter: SourceView;
+  notificationSnackBarComponent: NotificationSnackBarComponent;
+  IsProgressBarVisibile: boolean;
+  AdapterItemList: SRCI[];
   SourceDataSource: MatTableDataSource<SRCI>;
-  constructor() { }
+  constructor(
+    private _router: Router,
+    matIconRegistry: MatIconRegistry,
+    private sanitizer: DomSanitizer,
+    public snackBar: MatSnackBar,
+    private _formBuilder: FormBuilder,
+    private _masterService: MasterService,
+    private _adapterService: AdapterService,
+    private dialog: MatDialog,
+    private _datePipe: DatePipe
+  ) {
+    
+   }
 
-  ngOnInit(): void {
-    this.SourceDataSource = new MatTableDataSource(ELEMENT_DATA1);
+   ngOnInit(): void {
+    const retrievedObject = localStorage.getItem('authorizationData');
+    if (retrievedObject) {
+      this.authenticationDetails = JSON.parse(retrievedObject) as AuthenticationDetails;
+      this.CurrentUserName = this.authenticationDetails.userName;
+      this.CurrentUserID = this.authenticationDetails.userID;
+      this.CurrentUserRole = this.authenticationDetails.userRole;
+      this.MenuItems = this.authenticationDetails.menuItemNames.split(',');
+      // if (this.MenuItems.indexOf('TemplateCreation') < 0) {
+      //   this.notificationSnackBarComponent.openSnackBar('You do not have permission to visit this page', SnackBarStatus.danger);
+      //   this._router.navigate(['/auth/login']);
+      // }
+    } else {
+      this._router.navigate(['/auth/login']);
+    }
+    this.AdopterCreationFormGroup = this._formBuilder.group({
+      Type: ['', Validators.required],
+      AdapterItems: this.AdapterItemFormArray
+    });
+  }
+
+
+  AddAdapterItem(): void {
+    this.AddAdapterItemFormGroup();
+  }
+
+  RemoveAdapterItem(index: number): void {
+    if (this.AdopterCreationFormGroup.enabled) {
+      if (this.AdapterItemFormArray.length > 0) {
+        this.AdapterItemFormArray.removeAt(index);
+        this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+      } else {
+        this.notificationSnackBarComponent.openSnackBar('no items to delete', SnackBarStatus.warning);
+      }
+    }
+  }
+
+  AddAdapterItemFormGroup(): void {
+    const row = this._formBuilder.group({
+      Item: ['', Validators.required],
+      Field1: [''],
+      Field2: [''],
+      FileExt: [''],
+    });
+    this.AdapterItemFormArray.insert(0, row);
+    this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
 }

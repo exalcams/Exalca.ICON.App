@@ -16,6 +16,7 @@ export class SRCI {
     Field2: string;
     FileExt: string;
 }
+
 export class ADAPTERI {
     AdapterID: Guid;
     Key: string;
@@ -92,4 +93,12 @@ export class ADAPTERIView {
     CreatedBy: string;
     ModifiedOn: Date;
     ModifiedBy: string;
+}
+export class SourceView {
+    AdapterID: Guid;
+    Type: string;
+    Title: string;
+    Status: boolean;
+
+    SRCIList: SRCI[]
 }
