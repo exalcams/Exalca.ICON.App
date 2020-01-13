@@ -5,7 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
-import { AdapterHView, AdapterH, ADAPTERI } from 'app/models/icon.models';
+import { AdapterHView, AdapterH, ADAPTERI, ADAPTERTYPEC, AdapterItemRule } from 'app/models/icon.models';
 import { Guid } from 'guid-typescript';
 
 @Injectable({
@@ -32,6 +32,11 @@ export class AdapterService {
   // Error Handler
   errorHandler(error: HttpErrorResponse): Observable<string> {
     return throwError(error.error || error.message || 'Server Error');
+  }
+
+  GetAllAdapterTypes(): Observable<ADAPTERTYPEC[] | string> {
+    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Adapter/GetAllAdapterTypes`)
+      .pipe(catchError(this.errorHandler));
   }
 
   // Adapter
@@ -66,6 +71,12 @@ export class AdapterService {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Adapter/GetAllAdapterItemsByAdapterID?AdapterID=${AdapterID}`)
       .pipe(catchError(this.errorHandler));
   }
+
+  GetAllAdapterItemRule(): Observable<AdapterItemRule[] | string> {
+    return this._httpClient.get<AdapterItemRule[]>(`${this.baseAddress}api/Adapter/GetAllAdapterItemRule`)
+      .pipe(catchError(this.errorHandler));
+  }
+
 
   // UpdateMenuApp(menuApp: MenuApp): Observable<any> {
   //   return this._httpClient.post<any>(`${this.baseAddress}api/Master/UpdateApp`,

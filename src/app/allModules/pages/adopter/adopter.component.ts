@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
-import { SRCI, AdapterHView, ADAPTERI, AdapterH } from 'app/models/icon.models';
+import { SRCI, AdapterHView, ADAPTERI, AdapterH, ADAPTERTYPEC } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
 import { Guid } from 'guid-typescript';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -20,14 +20,6 @@ import { AdapterService } from 'app/services/adapter.service';
   styleUrls: ['./adopter.component.scss']
 })
 export class AdopterComponent implements OnInit {
-  displayedColumns: string[] = [
-    'Item',
-    'Field1',
-    'Field2',
-    'FileExt',
-];
-//SourceDataSource: MatTableDataSource<SRC_I>;
-
   authenticationDetails: AuthenticationDetails;
   MenuItems: string[];
   CurrentUserName: string;
@@ -43,6 +35,7 @@ export class AdopterComponent implements OnInit {
   SelectedAdapter: AdapterHView;
   SelectedAdapterID: number;
   AdapterItemList: ADAPTERI[];
+  AllAdapterTypes: ADAPTERTYPEC[];
   AllTypes: string[];
   AllAdapters: AdapterH[] = [];
   constructor(
@@ -81,7 +74,8 @@ export class AdopterComponent implements OnInit {
       Type: ['', Validators.required],
       AdapterItems: this.AdapterItemFormArray
     });
-    this.AllTypes = ['Email', 'FTP'];
+    // this.AllTypes = ['Email', 'FTP'];
+    this.GetAllAdapterTypes();
     this.GetAllAdapter();
   }
 
@@ -111,6 +105,21 @@ export class AdopterComponent implements OnInit {
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
+  GetAllAdapterTypes(): void {
+    this._adapterService.GetAllAdapterTypes().subscribe(
+      (data) => {
+        this.AllAdapterTypes = data as ADAPTERTYPEC[];
+        if (this.AllAdapterTypes.length && this.AllAdapterTypes.length > 0) {
+          const AllTypess = this.AllAdapterTypes.map(item => item.Type);
+          this.AllTypes = AllTypess.filter((item, i, ar) => ar.indexOf(item) === i);
+        }
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
   GetAllAdapter(): void {
     this._adapterService.GetAllAdapter().subscribe(
       (data) => {
@@ -125,12 +134,35 @@ export class AdopterComponent implements OnInit {
     );
   }
 
+  TypeSelected(event): void {
+    const selectedType = event.value;
+    if (selectedType) {
+      this.ResetAdapterItems();
+      if (this.SelectedAdapter && this.SelectedAdapter.AdapterID &&
+        this.SelectedAdapter.Type === selectedType &&
+        this.AdapterItemList && this.AdapterItemList.length) {
+        this.AdapterItemList.forEach(x => {
+          this.SetItemValues(x);
+        });
+      } else {
+        const filteredAdapterTypes = this.AllAdapterTypes.filter(x => x.Type === selectedType);
+        filteredAdapterTypes.forEach(itr => {
+          const x = new ADAPTERI();
+          x.Key = itr.Key;
+          x.IsRemovable = false;
+          this.SetItemValues(x);
+        });
+      }
+    }
+  }
+
   LoadSelectedAdapterH(adapter: AdapterH): void {
     this.SelectedAdapterID = adapter.AdapterID;
     this.SelectedAdapter = new AdapterHView();
     this.SelectedAdapter.AdapterID = adapter.AdapterID;
     this.SelectedAdapter.Type = adapter.Type;
     this.AdapterCreationFormGroup.get('Type').patchValue(adapter.Type);
+    // this.AdapterCreationFormGroup.get('Type').disable();
     this.ResetAdapterItems();
     this.GetAllAdapterItemsByAdapterID();
   }
@@ -153,7 +185,11 @@ export class AdopterComponent implements OnInit {
     const row = this._formBuilder.group({
       Key: [adpterItem.Key, Validators.required],
       Value: [adpterItem.Value, Validators.required],
+      IsRemovable: [adpterItem.IsRemovable],
     });
+    if (!adpterItem.IsRemovable) {
+      row.get('Key').disable();
+    }
     this.AdapterItemFormArray.push(row);
     // this.AdapterItemFormArray.insert(0, row);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
@@ -178,6 +214,7 @@ export class AdopterComponent implements OnInit {
     const row = this._formBuilder.group({
       Key: ['', Validators.required],
       Value: ['', Validators.required],
+      IsRemovable: [true]
     });
     this.AdapterItemFormArray.push(row);
     // this.AdapterItemFormArray.insert(0, row);
@@ -190,18 +227,48 @@ export class AdopterComponent implements OnInit {
       if (AdapterItemsArry.length <= 0) {
         this.notificationSnackBarComponent.openSnackBar('Please add values', SnackBarStatus.danger);
       } else {
-        if (this.SelectedAdapter.AdapterID) {
-          const Actiontype = 'Update';
-          const Catagory = 'Template';
-          this.OpenConfirmationDialog(Actiontype, Catagory);
-        } else {
-          const Actiontype = 'Create';
-          const Catagory = 'Template';
-          this.OpenConfirmationDialog(Actiontype, Catagory);
-        }
+        this.GetHeaderValues();
+        this.GetItemValues();
+        this.CheckForDuplicateParamID();
       }
     } else {
       this.ShowValidationErrors(this.AdapterCreationFormGroup);
+    }
+  }
+
+  CheckForDuplicateParamID(): void {
+    // const valueArr = this.SelectedTransform.TRFIList.map(x => x.paramID);
+    // const isDuplicate = valueArr.some(function (item, idx): boolean {
+    //   return valueArr.indexOf(item) !== idx;
+    // });
+    // return isDuplicate;
+
+    const uniq = this.SelectedAdapter.ADAPTERIList
+      .map((x) => {
+        return {
+          count: 1,
+          Key: x.Key
+        };
+      })
+      .reduce((a, b) => {
+        a[b.Key] = (a[b.Key] || 0) + b.count;
+        return a;
+      }, {});
+
+    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
+    if (duplicates && duplicates.length && duplicates.length > 0) {
+      const duplicateKeys = duplicates.join();
+      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
+    } else {
+      if (this.SelectedAdapter.AdapterID) {
+        const Actiontype = 'Update';
+        const Catagory = 'Template';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      } else {
+        const Actiontype = 'Create';
+        const Catagory = 'Template';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      }
     }
   }
 
@@ -257,8 +324,6 @@ export class AdopterComponent implements OnInit {
   }
 
   CreateAdapter(): void {
-    this.GetHeaderValues();
-    this.GetItemValues();
     this.IsProgressBarVisibile = true;
     this._adapterService.CreateAdapter(this.SelectedAdapter).subscribe(
       (data) => {
@@ -276,8 +341,6 @@ export class AdopterComponent implements OnInit {
   }
 
   UpdateAdapter(): void {
-    this.GetHeaderValues();
-    this.GetItemValues();
     this.IsProgressBarVisibile = true;
     this._adapterService.UpdateAdapter(this.SelectedAdapter).subscribe(
       (data) => {
@@ -325,11 +388,8 @@ export class AdopterComponent implements OnInit {
       AdapterItem.AdapterID = this.SelectedAdapter.AdapterID;
       AdapterItem.Key = x.get('Key').value;
       AdapterItem.Value = x.get('Value').value;
+      AdapterItem.IsRemovable = x.get('IsRemovable').value;
       this.SelectedAdapter.ADAPTERIList.push(AdapterItem);
     });
   }
-
-
-
-
 }
