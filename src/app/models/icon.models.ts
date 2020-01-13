@@ -28,7 +28,7 @@ export class ADAPTERI {
     ModifiedBy: string;
 }
 export class ADAPTERTYPEC {
-    Id: Guid;
+    Id: number;
     Type: string;
     Key: string;
     sampleValue: string;
@@ -54,7 +54,7 @@ export class BOTLOG {
 export class SRCH {
     srcID: Guid;
     title: string;
-    AdapterID: Guid;
+    AdapterID: number;
 }
 export class TRFH {
     trfID: Guid;
