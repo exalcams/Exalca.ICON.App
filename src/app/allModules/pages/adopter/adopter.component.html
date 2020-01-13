@@ -47,7 +47,7 @@
                 
               </mat-form-field> -->
               <mat-form-field class="pl-8" fxFlex="50">
-                <mat-select placeholder="Type" matInput formControlName="Type">
+                <mat-select placeholder="Type" matInput formControlName="Type" (selectionChange)="TypeSelected($event)">
                   <mat-option *ngFor="let temp of AllTypes" [value]="temp">
                     {{temp}}
                   </mat-option>
@@ -100,7 +100,8 @@
                   <th mat-header-cell *matHeaderCellDef>Action</th>
                   <td mat-cell *matCellDef="let row;let index = index" class="rightAlignClass">
                     <!-- <mat-icon>image</mat-icon> -->
-                    <img matTooltip="Remove" (click)="RemoveAdapterItem(index)" class="imgClass"
+                    <img *ngIf="AdapterCreationFormGroup.get('AdapterItems').controls[index].get('IsRemovable').value"
+                      matTooltip="Remove" (click)="RemoveAdapterItem(index)" class="imgClass"
                       src="assets/images/remove.png">
                   </td>
                 </ng-container>

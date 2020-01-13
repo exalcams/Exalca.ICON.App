@@ -4,9 +4,9 @@ export class AdapterH {
     Type: string;
     Title: string;
     Status: boolean;
-    CreadtedOn: Date;
+    CreatedOn: Date;
     CreatedBy: string;
-    ModifiedOn: Date;
+    ModifiedOn?: Date;
     ModifiedBy: string;
 }
 export class SRCI {
@@ -22,9 +22,10 @@ export class ADAPTERI {
     AdapterID: number;
     Key: string;
     Value: string;
-    CreadtedOn: Date;
+    IsRemovable: boolean;
+    CreatedOn: Date;
     CreatedBy: string;
-    ModifiedOn: Date;
+    ModifiedOn?: Date;
     ModifiedBy: string;
 }
 export class ADAPTERTYPEC {
@@ -57,22 +58,35 @@ export class SRCH {
     AdapterID: number;
 }
 export class TRFH {
-    trfID: Guid;
+    trfID: number;
     Title: string;
     Type: string;
-
+    AdapterID: number;
 }
 export class TRFI {
-    trfID: Guid;
-    pramID: Guid;
+    ID: number;
+    trfID: number;
+    paramID: string;
     Value: string;
     NumOnly: boolean;
     TxtOnly: boolean;
-    Amount: string;
-    Quan: string;
-    Date: Date;
-    Digitscount: number;
+    Amount: boolean;
+    Quan: boolean;
+    Date: boolean;
+    Digitscount?: number;
     Pattern: string;
+}
+
+export class TRFHView {
+    trfID: number;
+    Title: string;
+    Type: string;
+    AdapterID: number;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+    TRFIList: TRFI[];
 }
 
 export class AdapterHView {
@@ -80,9 +94,9 @@ export class AdapterHView {
     Type: string;
     Title: string;
     Status: boolean;
-    CreadtedOn: Date;
+    CreatedOn: Date;
     CreatedBy: string;
-    ModifiedOn: Date;
+    ModifiedOn?: Date;
     ModifiedBy: string;
     ADAPTERIList: ADAPTERIView[];
 }
@@ -91,9 +105,10 @@ export class ADAPTERIView {
     AdapterID: number;
     Key: string;
     Value: string;
-    CreadtedOn: Date;
+    IsRemovable: boolean;
+    CreatedOn: Date;
     CreatedBy: string;
-    ModifiedOn: Date;
+    ModifiedOn?: Date;
     ModifiedBy: string;
 }
 export class SourceView {
@@ -101,6 +116,10 @@ export class SourceView {
     Type: string;
     Title: string;
     Status: boolean;
+    SRCIList: SRCI[];
+}
 
-    SRCIList: SRCI[]
+export class AdapterItemRule {
+    AdapterID: number;
+    Value: string;
 }
