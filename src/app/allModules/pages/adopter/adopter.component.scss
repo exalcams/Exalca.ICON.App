@@ -191,6 +191,10 @@
     tr {
       height: 40px;
     }
+    .mat-input-element:disabled {
+      color: #3a3a3a !important;
+      cursor: not-allowed !important;
+    }
   }
 
   .boldClass {

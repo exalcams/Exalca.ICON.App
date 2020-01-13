@@ -21,14 +21,6 @@ import { AdapterService } from 'app/services/adapter.service';
   styleUrls: ['./transform.component.scss']
 })
 export class TransformComponent implements OnInit {
-  displayedColumns: string[] = [
-    'Item',
-    'Field1',
-    'Field2',
-    'FileExt',
-  ];
-  // SourceDataSource: MatTableDataSource<SRC_I>;
-
   authenticationDetails: AuthenticationDetails;
   MenuItems: string[];
   CurrentUserName: string;
@@ -197,7 +189,7 @@ export class TransformComponent implements OnInit {
       adpterItem.Amount ? 'Amount' : adpterItem.Quan ? 'Quan' : adpterItem.Date ? 'Date' : '';
     const row = this._formBuilder.group({
       ParamID: [adpterItem.paramID, Validators.required],
-      Value: [adpterItem.Value],
+      Value: [adpterItem.Value, Validators.required],
       Rule: [RuleValue, Validators.required],
       Digitscount: [adpterItem.Digitscount],
       Pattern: [adpterItem.Pattern],
@@ -224,7 +216,7 @@ export class TransformComponent implements OnInit {
   AddTransformItemFormGroup(): void {
     const row = this._formBuilder.group({
       ParamID: ['', Validators.required],
-      Value: [''],
+      Value: ['', Validators.required],
       Rule: ['', Validators.required],
       Digitscount: [''],
       Pattern: [''],
@@ -370,7 +362,7 @@ export class TransformComponent implements OnInit {
     );
   }
 
-  
+
 
   // CreateTransformParaMapping(): void {
   //   this.GetParameterValues();

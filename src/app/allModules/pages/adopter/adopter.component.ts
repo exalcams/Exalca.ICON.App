@@ -20,14 +20,6 @@ import { AdapterService } from 'app/services/adapter.service';
   styleUrls: ['./adopter.component.scss']
 })
 export class AdopterComponent implements OnInit {
-  displayedColumns: string[] = [
-    'Item',
-    'Field1',
-    'Field2',
-    'FileExt',
-  ];
-  // SourceDataSource: MatTableDataSource<SRC_I>;
-
   authenticationDetails: AuthenticationDetails;
   MenuItems: string[];
   CurrentUserName: string;
