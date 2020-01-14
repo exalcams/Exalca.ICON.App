@@ -5,6 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
+import { ADAPTERTYPEC } from 'app/models/icon.models';
 
 @Injectable({
   providedIn: 'root'
@@ -14,13 +15,13 @@ export class MasterService {
   baseAddress: string;
   NotificationEvent: Subject<any>;
 
-    GetNotification(): Observable<any> {
-        return this.NotificationEvent.asObservable();
-    }
+  GetNotification(): Observable<any> {
+    return this.NotificationEvent.asObservable();
+  }
 
-    TriggerNotification(eventName: string): void {
-        this.NotificationEvent.next(eventName);
-    }
+  TriggerNotification(eventName: string): void {
+    this.NotificationEvent.next(eventName);
+  }
 
   constructor(private _httpClient: HttpClient, private _authService: AuthService) {
     this.baseAddress = _authService.baseAddress;
@@ -193,6 +194,57 @@ export class MasterService {
       .pipe(catchError(this.errorHandler));
   }
 
+
+  // Adapter
+  CreateAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Master/CreateAdapterType`,
+      Adapter,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetDistinctAdapterTypes(): Observable<string[] | string> {
+    return this._httpClient.get<string[]>(`${this.baseAddress}api/Master/GetDistinctAdapterTypes`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetAllAdapterTypes(): Observable<ADAPTERTYPEC[] | string> {
+    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Master/GetAllAdapterTypes`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetAdapterTypesByType(Type: string): Observable<ADAPTERTYPEC[] | string> {
+    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Master/GetAdapterTypesByType?Type=${Type}`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+
+  UpdateAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Master/UpdateAdapterType`,
+      Adapter,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  DeleteAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Master/DeleteAdapterType`,
+      Adapter,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
   GetAllNotificationByUserID(UserID: string): Observable<UserNotification[] | string> {
     return this._httpClient.get<UserNotification[]>(`${this.baseAddress}api/Notification/GetAllNotificationByUserID?UserID=${UserID}`)
       .pipe(catchError(this.errorHandler));
@@ -201,10 +253,10 @@ export class MasterService {
   UpdateNotification(SelectedNotification: UserNotification): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Notification/UpdateNotification`,
       SelectedNotification, {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json'
-        })
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
       })
+    })
       .pipe(catchError(this.errorHandler));
   }
 

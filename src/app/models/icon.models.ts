@@ -34,6 +34,10 @@ export class ADAPTERTYPEC {
     Key: string;
     sampleValue: string;
     VisibleField: string;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
 }
 export class BOTH {
     botID: Guid;
