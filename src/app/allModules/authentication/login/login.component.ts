@@ -266,7 +266,7 @@ export class LoginComponent implements OnInit {
         }
       );
     }
-   
+
     if (this.MenuItems.indexOf('App') >= 0) {
       this.subChildren.push(
         {
@@ -297,8 +297,19 @@ export class LoginComponent implements OnInit {
         }
       );
     }
+    if (this.MenuItems.indexOf('AdapterType') >= 0) {
+      this.subChildren.push(
+        {
+          id: 'adapterType',
+          title: 'Adapter Type',
+          type: 'item',
+          url: '/master/adapterType'
+        }
+      );
+    }
 
-    if (this.MenuItems.indexOf('App') >= 0 || this.MenuItems.indexOf('Role') >= 0 || this.MenuItems.indexOf('User') >= 0) {
+    if (this.MenuItems.indexOf('App') >= 0 || this.MenuItems.indexOf('Role') >= 0
+      || this.MenuItems.indexOf('User') >= 0 || this.MenuItems.indexOf('AdapterType') >= 0) {
       this.children.push({
         id: 'master',
         title: 'Master',
