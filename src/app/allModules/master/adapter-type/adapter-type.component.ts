@@ -204,8 +204,13 @@ export class AdapterTypeComponent implements OnInit {
       const duplicateKeys = duplicates.join();
       this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
     } else {
-      const Actiontype = 'Save';
-      this.OpenConfirmationDialog(Actiontype);
+      if (this.SelectedAdapterType) {
+        const Actiontype = 'Update';
+        this.OpenConfirmationDialog(Actiontype);
+      } else {
+        const Actiontype = 'Create';
+        this.OpenConfirmationDialog(Actiontype);
+      }
     }
   }
 
@@ -221,7 +226,11 @@ export class AdapterTypeComponent implements OnInit {
     if (this.AdapterTypeFormGroup.valid) {
       this.GetAdapterTypeValues();
       this.GetKeyValues();
-      this.CheckForDuplicateKey();
+      if (this.AllAdapterTypes.length && this.AllAdapterTypes.length > 0) {
+        this.CheckForDuplicateKey();
+      } else {
+        this.notificationSnackBarComponent.openSnackBar('Please add atleast one item for key', SnackBarStatus.danger);
+      }
       // if (this.SelectedAdapterType.Id) {
       //   const Actiontype = 'Update';
       //   this.OpenConfirmationDialog(Actiontype);
@@ -292,18 +301,19 @@ export class AdapterTypeComponent implements OnInit {
     dialogRef.afterClosed().subscribe(
       result => {
         if (result) {
-          // if (Actiontype === 'Create') {
-          //   this.CreateAdapterType();
-          // } else if (Actiontype === 'Update') {
-          //   this.UpdateAdapterType();
-          // } else if (Actiontype === 'Delete') {
-          //   this.DeleteAdapterType();
-          // }
-          if (Actiontype === 'Save') {
+          if (Actiontype === 'Create') {
+            this.CreateAdapterType();
+          } else if (Actiontype === 'Update') {
             this.UpdateAdapterType();
           } else if (Actiontype === 'Delete') {
             this.DeleteAdapterType();
           }
+          // if (Actiontype === 'Save') {
+          //   this.UpdateAdapterType();
+          // } 
+          // else if (Actiontype === 'Delete') {
+          //   this.DeleteAdapterType();
+          // }
         }
       });
   }
@@ -345,8 +355,6 @@ export class AdapterTypeComponent implements OnInit {
       }
     );
   }
-
-
 
   UpdateAdapterType(): void {
     this.IsProgressBarVisibile = true;

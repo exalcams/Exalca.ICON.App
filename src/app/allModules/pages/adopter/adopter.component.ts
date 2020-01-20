@@ -149,6 +149,7 @@ export class AdopterComponent implements OnInit {
         filteredAdapterTypes.forEach(itr => {
           const x = new ADAPTERI();
           x.Key = itr.Key;
+          x.Value = itr.sampleValue;
           x.IsRemovable = false;
           this.SetItemValues(x);
         });
