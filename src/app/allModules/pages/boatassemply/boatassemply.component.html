@@ -1,3 +1,57 @@
-<p>
-  boatassemply works!
-</p>
+<div id="chat" class="page-layout carded fullwidth">
+  <!-- <div class="top-bg accent"></div> -->
+
+  <div class="center normal" style="margin-top: -27px !important;">
+    <!-- <div style="height: 50px !important; margin-bottom: 2px !important;">
+      <mat-card fxFlex="30" style="background-color: #fffdf9;border-radius: 5px 0px 0px 5px !important;">
+        <div class="h2 mb-24" style="margin-top: -12px; margin-left: 88px;"><b>Adopter</b></div>
+      </mat-card>
+      <mat-card fxFlex="70" style="background-color: #fffdf9;border-radius:0px 5px 5px 0px!important;">
+        <mat-icon (click)="ResetControl()">add</mat-icon>
+      </mat-card>
+    </div> -->
+    <div fxLayout class="content-card">
+      <div fxFlex="30" class="side-bar">
+        <mat-card class="cardHeader p-8">
+          <div fxLayout fxFlex fxLayoutAlign="center" class="h2">
+            <b>BOT</b>
+          </div>
+        </mat-card>
+        <div class="sidenav-header">
+          <mat-toolbar [style.background]="'white'">
+            <mat-toolbar-row fxLayout="row" class="px-8" fxLayoutAlign="space-between center">
+              <div class="search-wrapper" fxFlex fxLayout="row" fxLayoutAlign="start center">
+                <div class="search" fxFlex fxLayout="row" fxLayoutAlign="start center">
+                  <input [(ngModel)]="searchText" type="text" placeholder="Search" fxFlex>
+                  <mat-icon class="s-16">search</mat-icon>
+                </div>
+              </div>
+            </mat-toolbar-row>
+          </mat-toolbar>
+          <mat-card *ngFor="let ada of AllBOTs | filter: searchText" class="mx-8 my-4 p-8"
+            [class.highLight]="SelectedBOTID==ada.BOTID" (click)="LoadSelectedBOTH(ada)">
+            <div fxLayout fxLayoutAlign="space-between center">
+              <div fxFlex>{{ada.BOTID}}</div>
+              <div fxFlex fxLayoutAlign="end">{{ada.CreadtedOn | date}}</div>
+            </div>
+            <div style="font-size: 11px;margin-bottom: 5px">
+              <span style="margin-right: 10px">{{ada.Type}}</span>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+      <div class="borderRight1"></div>
+      <div fxFlex="70" class="side-bar">
+        <mat-card class="cardHeader p-8">
+          <div fxLayout fxFlex class="h2" fxLayoutAlign="end">
+            <button mat-stroked-button color="warn" (click)="ResetControl()">Add</button>
+          </div>
+        </mat-card>
+        <div class="sidenav-content" fxFlex fxLayout="column">
+          <mat-card class="mx-8 my-4 p-8" fxFlex fxLayout="column">
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

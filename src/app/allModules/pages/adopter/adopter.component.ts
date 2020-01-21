@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
-import { SRCI, AdapterHView, ADAPTERI, AdapterH, ADAPTERTYPEC } from 'app/models/icon.models';
+import { MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
+import { AdapterHView, ADAPTERI, AdapterH, ADAPTERTYPEC } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
 import { Guid } from 'guid-typescript';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -8,9 +8,6 @@ import { FormGroup, FormArray, AbstractControl, Validators, FormBuilder } from '
 import { BehaviorSubject } from 'rxjs';
 import { SnackBarStatus } from 'app/notifications/notification-snack-bar/notification-snackbar-status-enum';
 import { Router } from '@angular/router';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MasterService } from 'app/services/master.service';
-import { DatePipe } from '@angular/common';
 import { NotificationDialogComponent } from 'app/notifications/notification-dialog/notification-dialog.component';
 import { AdapterService } from 'app/services/adapter.service';
 
@@ -38,17 +35,13 @@ export class AdopterComponent implements OnInit {
   AllAdapterTypes: ADAPTERTYPEC[];
   AllTypes: string[];
   AllAdapters: AdapterH[] = [];
+  searchText = '';
   constructor(
     private _router: Router,
-    matIconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer,
     public snackBar: MatSnackBar,
     private _formBuilder: FormBuilder,
-    private _masterService: MasterService,
     private _adapterService: AdapterService,
-    private dialog: MatDialog,
-    private _datePipe: DatePipe
-  ) {
+    private dialog: MatDialog  ) {
     this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
     this.IsProgressBarVisibile = false;
     this.SelectedAdapter = new AdapterHView();
@@ -327,7 +320,7 @@ export class AdopterComponent implements OnInit {
   CreateAdapter(): void {
     this.IsProgressBarVisibile = true;
     this._adapterService.CreateAdapter(this.SelectedAdapter).subscribe(
-      (data) => {
+      () => {
         this.notificationSnackBarComponent.openSnackBar('Adapter details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
         this.ResetControl();
@@ -344,7 +337,7 @@ export class AdopterComponent implements OnInit {
   UpdateAdapter(): void {
     this.IsProgressBarVisibile = true;
     this._adapterService.UpdateAdapter(this.SelectedAdapter).subscribe(
-      (data) => {
+      () => {
         this.notificationSnackBarComponent.openSnackBar('Adapter details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
         this.ResetControl();
@@ -384,7 +377,7 @@ export class AdopterComponent implements OnInit {
     this.AdapterItemList = [];
     this.SelectedAdapter.ADAPTERIList = [];
     const AdapterItemsArr = this.AdapterCreationFormGroup.get('AdapterItems') as FormArray;
-    AdapterItemsArr.controls.forEach((x, i) => {
+    AdapterItemsArr.controls.forEach((x) => {
       const AdapterItem: ADAPTERI = new ADAPTERI();
       AdapterItem.AdapterID = this.SelectedAdapter.AdapterID;
       AdapterItem.Key = x.get('Key').value;

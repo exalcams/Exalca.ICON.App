@@ -43,17 +43,20 @@
             <!-- <div class="h2 mb-24">{{SelectedAdapterType?'Update':'Create'}} AdapterType</div> -->
             <div fxLayout="row" class="pt-8">
               <div fxFlex class="h2 mb-24">{{SelectedAdapterType?'Update':'Create'}} AdapterType</div>
-              <div fxFlex align="end">
+              <!-- <div fxFlex align="end">
                 <img class="pr-8" matTooltip="Add" (click)="AddKeyFormGroup()" src="assets/images/plus.png">
-              </div>
+              </div> -->
             </div>
             <div fxLayout="row wrap" fxLayoutAlign="start" fxFlex>
-              <mat-form-field fxFlex="100">
+              <mat-form-field fxFlex="90">
                 <input matInput placeholder="Type" formControlName="Type">
                 <mat-error
                   *ngIf="AdapterTypeFormGroup.get('Type').touched && AdapterTypeFormGroup.get('Type').hasError('required')">
                   Type required</mat-error>
               </mat-form-field>
+              <div fxFlex align="end">
+                <img class="pr-8 mt-8" matTooltip="Add" (click)="AddKeyFormGroup()" src="assets/images/plus.png">
+              </div>
             </div>
             <div formArrayName="Keys">
               <div *ngFor="let skill of AdapterTypeFormGroup.get('Keys').controls; let i=index">
@@ -69,8 +72,7 @@
                       <input matInput placeholder="Sample Value" formControlName="sampleValue">
                     </mat-form-field>
                     <div fxFlex="10" fxLayoutAlign="center" class="pt-20">
-                      <img matTooltip="Remove" (click)="RemoveKey(i)" class="imgClass"
-                        src="assets/images/remove.png">
+                      <img matTooltip="Remove" (click)="RemoveKey(i)" class="imgClass" src="assets/images/remove.png">
                     </div>
                   </div>
                 </div>
