@@ -40,7 +40,7 @@ export class ADAPTERTYPEC {
     ModifiedBy: string;
 }
 export class BOTH {
-    botID: Guid;
+    botID: number;
     Title: string;
     Status: string;
     Comments: string;
@@ -48,6 +48,16 @@ export class BOTH {
     Interval: string;
     StartDate: Date;
     UntilWhen: Date;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+}
+export class BOTHView {
+    botID: number;
+    Title: string;
+    Status: string;
+    Freq: string;
 }
 export class BOTLOG {
     RunID: Guid;

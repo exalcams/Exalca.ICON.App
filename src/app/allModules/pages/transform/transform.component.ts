@@ -40,6 +40,7 @@ export class TransformComponent implements OnInit {
   AllTypes: string[];
   AllRules: string[];
   AllTransforms: TRFH[] = [];
+  searchText = '';
   constructor(
     private _router: Router,
     matIconRegistry: MatIconRegistry,

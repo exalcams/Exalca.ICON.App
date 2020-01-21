@@ -18,7 +18,17 @@
           </div>
         </mat-card>
         <div class="sidenav-header">
-          <mat-card *ngFor="let ada of AllAdapters" class="mx-8 my-4 p-8"
+          <mat-toolbar [style.background]="'white'">
+            <mat-toolbar-row fxLayout="row" class="px-8" fxLayoutAlign="space-between center">
+              <div class="search-wrapper" fxFlex fxLayout="row" fxLayoutAlign="start center">
+                <div class="search" fxFlex fxLayout="row" fxLayoutAlign="start center">
+                  <input [(ngModel)]="searchText" type="text" placeholder="Search" fxFlex>
+                  <mat-icon class="s-16">search</mat-icon>
+                </div>
+              </div>
+            </mat-toolbar-row>
+          </mat-toolbar>
+          <mat-card *ngFor="let ada of AllAdapters | filter: searchText" class="mx-8 my-4 p-8"
             [class.highLight]="SelectedAdapterID==ada.AdapterID" (click)="LoadSelectedAdapterH(ada)">
             <div fxLayout fxLayoutAlign="space-between center">
               <div fxFlex>{{ada.AdapterID}}</div>
