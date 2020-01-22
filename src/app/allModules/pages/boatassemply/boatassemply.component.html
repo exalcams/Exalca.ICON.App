@@ -29,13 +29,13 @@
             </mat-toolbar-row>
           </mat-toolbar>
           <mat-card *ngFor="let ada of AllBOTs | filter: searchText" class="mx-8 my-4 p-8"
-            [class.highLight]="SelectedBOTID==ada.BOTID" (click)="LoadSelectedBOTH(ada)">
+            [class.highLight]="SelectedBOTID==ada.botID" (click)="LoadSelectedBOTH(ada)">
             <div fxLayout fxLayoutAlign="space-between center">
-              <div fxFlex>{{ada.BOTID}}</div>
-              <div fxFlex fxLayoutAlign="end">{{ada.CreadtedOn | date}}</div>
+              <div fxFlex>{{ada.botID}}</div>
+              <div fxFlex fxLayoutAlign="end">{{ada.CreatedOn | date}}</div>
             </div>
             <div style="font-size: 11px;margin-bottom: 5px">
-              <span style="margin-right: 10px">{{ada.Type}}</span>
+              <span style="margin-right: 10px">{{ada.Freq}}</span>
             </div>
           </mat-card>
         </div>
@@ -47,9 +47,103 @@
             <button mat-stroked-button color="warn" (click)="ResetControl()">Add</button>
           </div>
         </mat-card>
-        <div class="sidenav-content" fxFlex fxLayout="column">
-          <mat-card class="mx-8 my-4 p-8" fxFlex fxLayout="column">
-          </mat-card>
+        <div class="sidenav-content">
+          <!-- <mat-card class="mx-8 my-4 p-8" fxFlex fxLayout="column">
+
+          </mat-card> -->
+          <div fxLayout fxLayoutAlign="center center" class="mt-24 mb-8 mx-16">
+            <div class="checkedRound">
+              <img class="checkedClass" src="assets/images/checkMark.png">
+            </div>
+            <div fxFlex class="completedBg" style="height: 4px;"></div>
+            <div class="checkedRound">
+              <img class="checkedClass" src="assets/images/checkMark.png">
+            </div>
+            <div fxFlex class="upcomingLineBg" style="height: 4px;"></div>
+            <div class="nonCheckedRound">
+            </div>
+          </div>
+          <div fxLayout fxLayoutAlign="center center" class="mt-4 mb-24 mx-8">
+            <div>Initiate</div>
+            <div fxFlex></div>
+            <div class="ml-20">Process</div>
+            <div fxFlex></div>
+            <div>Transform</div>
+          </div>
+          <div fxLayout class="my-8 mx-8 mt-24">
+            <div fxFlex="25" class="mat-elevation-z8" fxLayout>
+              <div fxFlex="30" fxLayoutAlign="center" class="p-8 py-16">
+                <img class="sourceBorder p-8" src="assets/images/sourceDefinition.png">
+              </div>
+              <div fxFlex="58" fxLayoutAlign="start" class="p-8 py-16">
+                Source definition
+              </div>
+              <div fxFlex="12" fxLayoutAlign="end end">
+                <img class="sourceBg p-4 cursorPointer" src="assets/images/add.png"
+                  (click)="OpenSourceDefinitionDialog()">
+              </div>
+            </div>
+            <div fxFlex="20" fxLayout fxLayoutAlign="center center">
+              <div class="round"></div>
+              <div fxFlex class="lineBg" style="height: 1px;"></div>
+              <div class="round"></div>
+            </div>
+            <div fxFlex="10" class="mat-elevation-z8 borderRadius" fxLayout>
+              <div fxFlex fxLayoutAlign="center">
+                <img class="p-4" src="assets/images/Robo.png">
+              </div>
+            </div>
+            <div fxFlex="20" fxLayout fxLayoutAlign="center center">
+              <div class="round"></div>
+              <div fxFlex class="lineBg" style="height: 1px;"></div>
+              <div class="round"></div>
+            </div>
+            <div fxFlex="25" class="mat-elevation-z8" fxLayout>
+              <div fxFlex="30" fxLayoutAlign="center" class="p-8 py-16">
+                <img class="transformationBorder p-8" src="assets/images/transform.png">
+              </div>
+              <div fxFlex="58" fxLayoutAlign="start" class="p-8 py-16">
+                Transformation rule
+              </div>
+              <div fxFlex="12" fxLayoutAlign="end end">
+                <img class="transformationBg p-4 cursorPointer" src="assets/images/add.png"
+                  (click)="OpenTransformationRuleDialog()">
+              </div>
+            </div>
+          </div>
+          <div fxLayout fxLayoutAlign="center center" class="mt-24 mb-8 mx-8">
+            <div>
+              <button mat-raised-button (click)="TestConnection()"
+                [ngClass]="SelectedBOT.Status?'completedBg':'upcomingBg'">Test</button>
+            </div>
+            <div fxFlex
+              [ngClass]="SelectedBOT.Status?SelectedBOT.Status==='Test'?'inlineBg':'completedBg':'upcomingLineBg'"
+              style="height: 4px;"></div>
+            <div>
+              <button mat-raised-button (click)="OpenScheduleDialog()"
+                [disabled]="!this.SelectedBOT?.Status || this.SelectedBOT?.Status==='Retire'"
+                [ngClass]="SelectedBOT.Status?SelectedBOT.Status==='Test'?'inlineBg':'completedBg':'upcomingBg'">Schedule</button>
+            </div>
+            <div fxFlex
+              [ngClass]="SelectedBOT.Status?SelectedBOT.Status==='Test'?'upcomingBg':SelectedBOT.Status==='Schedule'?'inlineBg':SelectedBOT.Status==='Run'?'completedBg':'upcomingLineBg':'upcomingLineBg'"
+              style="height: 4px;"></div>
+            <div>
+              <button mat-stroked-button (click)="RunClicked()"
+              [disabled]="!this.SelectedBOT?.Status || this.SelectedBOT?.Status==='Retire'"
+                [ngClass]="SelectedBOT.Status?SelectedBOT.Status==='Test'?'upcomingBg':SelectedBOT.Status==='Schedule'?'inlineBg':SelectedBOT.Status==='Run'?'completedBg':'upcomingBg':'upcomingBg'">Run</button>
+            </div>
+          </div>
+          <div fxLayout fxLayoutAlign="center center" class="mt-24 mb-8 mx-8">
+            <div class="mx-20">
+              <button mat-raised-button (click)="PassClicked()"
+              [disabled]="!this.SelectedBOT?.Status || this.SelectedBOT?.Status==='Retire'"
+                class="PassBg">Pass</button>
+            </div>
+            <div class="mx-20">
+              <button (click)="RetireClicked()"
+              [disabled]="!this.SelectedBOT?.Status" mat-stroked-button class="RetireBg">Retire</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

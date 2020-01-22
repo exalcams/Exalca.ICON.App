@@ -5,6 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { BOTHView, BOTH } from 'app/models/icon.models';
+import { Guid } from 'guid-typescript';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +63,16 @@ export class BotService {
 
   GetBOTByBOTID(BOTID: number): Observable<BOTH | string> {
     return this._httpClient.get<BOTH>(`${this.baseAddress}api/BOT/GetBOTByBOTID?BOTID=${BOTID}`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  TestConnection(trfID: number): Observable<any | string> {
+    return this._httpClient.get<any>(`${this.baseAddress}api/BOT/TestConnection?trfID=${trfID}`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  UpdateBOTStatus(botID: number, Status: string, By: Guid): Observable<BOTH | string> {
+    return this._httpClient.get<BOTH>(`${this.baseAddress}api/BOT/UpdateBOTStatus?botID=${botID}&Status=${Status}&By=${By}`)
       .pipe(catchError(this.errorHandler));
   }
 

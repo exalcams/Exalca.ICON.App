@@ -4,6 +4,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { AdapterH, ADAPTERI } from 'app/models/icon.models';
 import { catchError } from 'rxjs/operators';
+import { SourceAdapterView } from 'app/models/SRC_H';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,10 @@ export class SourcedefinationService {
   }
   GetAdapterById(AdapterID: number): Observable<ADAPTERI[] | string> {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Source/GetAdapterById?AdapterID=${AdapterID}`)
+      .pipe(catchError(this.errorHandler));
+  }
+  GetAllSourceAdapterView(): Observable<SourceAdapterView[] | string> {
+    return this._httpClient.get<SourceAdapterView[]>(`${this.baseAddress}api/Source/GetAllSourceAdapterView`)
       .pipe(catchError(this.errorHandler));
   }
 }

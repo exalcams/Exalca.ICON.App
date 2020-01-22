@@ -5,7 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
-import { AdapterHView, AdapterH, ADAPTERI, ADAPTERTYPEC, TRFHView, TRFH, TRFI } from 'app/models/icon.models';
+import { AdapterHView, AdapterH, ADAPTERI, ADAPTERTYPEC, TRFHView, TRFH, TRFI, TransformationAdapterView } from 'app/models/icon.models';
 import { Guid } from 'guid-typescript';
 
 @Injectable({
@@ -37,7 +37,7 @@ export class TransformService {
   // Transform
   CreateTransform(tRFHView: TRFHView): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Transform/CreateTransform`,
-    tRFHView,
+      tRFHView,
       {
         headers: new HttpHeaders({
           'Content-Type': 'application/json'
@@ -59,6 +59,11 @@ export class TransformService {
 
   GetAllTransform(): Observable<TRFH[] | string> {
     return this._httpClient.get<TRFH[]>(`${this.baseAddress}api/Transform/GetAllTransform`)
+      .pipe(catchError(this.errorHandler));
+  }
+
+  GetAllTransformationAdapterView(): Observable<TransformationAdapterView[] | string> {
+    return this._httpClient.get<TransformationAdapterView[]>(`${this.baseAddress}api/Transform/GetAllTransformationAdapterView`)
       .pipe(catchError(this.errorHandler));
   }
 
