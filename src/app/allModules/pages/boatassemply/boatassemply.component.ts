@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar, MatDialog, MatDialogConfig, MatIconRegistry } from '@angular/material';
-import { BOTHView, BOTH } from 'app/models/icon.models';
+import { BOTHView, BOTH, TransformationAdapterView } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
 import { Guid } from 'guid-typescript';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -14,13 +14,17 @@ import { fuseAnimations } from '@fuse/animations';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MasterService } from 'app/services/master.service';
 import { DatePipe } from '@angular/common';
+import { SourceDefinitionDialogComponent } from '../source-definition-dialog/source-definition-dialog.component';
+import { TransformationRuleDialogComponent } from '../transformation-rule-dialog/transformation-rule-dialog.component';
+import { SourceAdapterView } from 'app/models/SRC_H';
+import { ScheduleDialogComponent } from '../schedule-dialog/schedule-dialog.component';
 
 @Component({
   selector: 'app-boatassemply',
   templateUrl: './boatassemply.component.html',
   styleUrls: ['./boatassemply.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  animations: fuseAnimations
+  // encapsulation: ViewEncapsulation.None,
+  // animations: fuseAnimations
 })
 export class BoatassemplyComponent implements OnInit {
   authenticationDetails: AuthenticationDetails;
@@ -39,7 +43,7 @@ export class BoatassemplyComponent implements OnInit {
   SelectedBOT: BOTH;
   SelectedBOTID: number;
   AllTypes: string[];
-  AllBOTs: BOTH[] = [];
+  AllBOTs: BOTHView[] = [];
   searchText = '';
   constructor(
     private _router: Router,
@@ -54,6 +58,7 @@ export class BoatassemplyComponent implements OnInit {
   ) {
     this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
     this.IsProgressBarVisibile = false;
+    this.SelectedBOT = new BOTH();
     this.SelectedBOTView = new BOTHView();
     this.SelectedBOTID = 0;
   }
@@ -98,7 +103,6 @@ export class BoatassemplyComponent implements OnInit {
     });
   }
   ResetControl(): void {
-    this.ResetBOTItems();
     this.ResetForm();
     this.SelectedBOTID = 0;
     this.SelectedBOTView = new BOTHView();
@@ -110,15 +114,11 @@ export class BoatassemplyComponent implements OnInit {
       formArray.removeAt(0);
     }
   }
-  ResetBOTItems(): void {
-    this.ClearFormArray(this.BOTItemFormArray);
-    this.BOTItemDataSource.next(this.BOTItemFormArray.controls);
-  }
 
   GetAllBOTHeaders(): void {
     this._BOTService.GetAllBOTHeaders().subscribe(
       (data) => {
-        this.AllBOTs = data as BOTH[];
+        this.AllBOTs = data as BOTHView[];
         if (this.AllBOTs.length && this.AllBOTs.length > 0) {
           this.LoadSelectedBOTH(this.AllBOTs[0]);
         }
@@ -132,7 +132,6 @@ export class BoatassemplyComponent implements OnInit {
   LoadSelectedBOTH(BOT: BOTHView): void {
     this.SelectedBOTID = BOT.botID;
     this.SelectedBOTView = BOT;
-    this.ResetBOTItems();
     this.GetBOTByBOTID();
   }
 
@@ -140,11 +139,134 @@ export class BoatassemplyComponent implements OnInit {
     this._BOTService.GetBOTByBOTID(this.SelectedBOTID).subscribe(
       (data) => {
         this.SelectedBOT = data as BOTH;
+        this.InsertBotDetails();
       },
       (err) => {
         console.error(err);
       }
     );
+  }
+
+  InsertBotDetails(): void {
+    this.BOTCreationFormGroup.patchValue({
+      Title: this.SelectedBOT.Title,
+      Status: this.SelectedBOT.Status,
+      srcID: this.SelectedBOT.srcID,
+      trfID: this.SelectedBOT.trfID,
+      Comments: this.SelectedBOT.Comments,
+      Freq: this.SelectedBOT.Freq,
+      Interval: this.SelectedBOT.Interval,
+      DatePart: this.SelectedBOT.DatePart,
+      StartDate: this.SelectedBOT.StartDate,
+      InstancesCount: this.SelectedBOT.InstancesCount,
+      UntilWhen: this.SelectedBOT.UntilWhen,
+    });
+  }
+
+  GetBotDetails(): void {
+    this.SelectedBOT.Title = this.BOTCreationFormGroup.get('Title').value;
+    this.SelectedBOT.Status = this.BOTCreationFormGroup.get('Status').value;
+    this.SelectedBOT.srcID = this.BOTCreationFormGroup.get('srcID').value;
+    this.SelectedBOT.trfID = this.BOTCreationFormGroup.get('trfID').value;
+    this.SelectedBOT.Comments = this.BOTCreationFormGroup.get('Comments').value;
+    this.SelectedBOT.Freq = this.BOTCreationFormGroup.get('Freq').value;
+    this.SelectedBOT.DatePart = this.BOTCreationFormGroup.get('DatePart').value;
+    this.SelectedBOT.StartDate = this.BOTCreationFormGroup.get('StartDate').value;
+    this.SelectedBOT.InstancesCount = this.BOTCreationFormGroup.get('InstancesCount').value;
+    this.SelectedBOT.UntilWhen = this.BOTCreationFormGroup.get('UntilWhen').value;
+  }
+
+  OpenSourceDefinitionDialog(): void {
+    const data: SourceAdapterView = new SourceAdapterView();
+    if (this.SelectedBOTID && this.SelectedBOTView) {
+      data.srcID = this.SelectedBOTView.srcID;
+      data.title = this.SelectedBOTView.srcTitle;
+    }
+    const dialogConfig: MatDialogConfig = {
+      panelClass: 'source-definition-dialog',
+      data: data
+    };
+    const dialogRef = this.dialog.open(SourceDefinitionDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          const res = result as SourceAdapterView;
+          this.SelectedBOT.srcID = res.srcID;
+          this.BOTCreationFormGroup.get('srcID').patchValue(res.srcID);
+        }
+      });
+  }
+
+  OpenTransformationRuleDialog(): void {
+    const data: TransformationAdapterView = new TransformationAdapterView();
+    if (this.SelectedBOTID && this.SelectedBOTView) {
+      data.trfID = this.SelectedBOTView.trfID;
+      data.Title = this.SelectedBOTView.trfTitle;
+    }
+    const dialogConfig: MatDialogConfig = {
+      panelClass: 'transformation-rule-dialog',
+      data: data
+    };
+    const dialogRef = this.dialog.open(TransformationRuleDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          const res = result as TransformationAdapterView;
+          this.SelectedBOT.trfID = res.trfID;
+          this.BOTCreationFormGroup.get('trfID').patchValue(res.trfID);
+        }
+      });
+  }
+
+  TestConnection(): void {
+    if (this.SelectedBOT.srcID && this.SelectedBOT.trfID) {
+      this._BOTService.TestConnection(this.SelectedBOT.trfID).subscribe(
+        (data) => {
+          if (data) {
+            console.log(data);
+            if (!this.SelectedBOT.Status) {
+              this.SelectedBOT.Status = 'Test';
+            }
+            this.notificationSnackBarComponent.openSnackBar('Test succeeded', SnackBarStatus.success);
+          }
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+    } else {
+      this.notificationSnackBarComponent.openSnackBar('Please select source & transformation rule', SnackBarStatus.danger);
+    }
+  }
+
+  OpenScheduleDialog(): void {
+    const data: TransformationAdapterView = new TransformationAdapterView();
+    const dialogConfig: MatDialogConfig = {
+      panelClass: 'schedule-dialog',
+      data: this.SelectedBOT
+    };
+    const dialogRef = this.dialog.open(ScheduleDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          const res = result as BOTH;
+          console.log(res);
+          if (res) {
+            this.SelectedBOT = res;
+            this.InsertBotDetails();
+            if (this.BOTCreationFormGroup.valid) {
+              if (!this.SelectedBOT.botID) {
+                this.CreateBOT();
+              }
+              else {
+                this.UpdateBOT();
+              }
+            } else {
+              this.ShowValidationErrors(this.BOTCreationFormGroup);
+            }
+          }
+        }
+      });
   }
 
   SubmitClicked(): void {
@@ -242,10 +364,10 @@ export class BoatassemplyComponent implements OnInit {
     this.GetHeaderValues();
     this._BOTService.UpdateBOT(this.SelectedBOT).subscribe(
       (data) => {
-        this.notificationSnackBarComponent.openSnackBar('BOT details created successfully', SnackBarStatus.success);
+        this.notificationSnackBarComponent.openSnackBar('BOT details updated successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
-        this.ResetControl();
-        this.GetAllBOTHeaders();
+        // this.ResetControl();
+        // this.GetAllBOTHeaders();
       },
       (err) => {
         console.error(err);
@@ -258,6 +380,32 @@ export class BoatassemplyComponent implements OnInit {
   GetHeaderValues(): void {
     // this.SelectedBOT = new BOTHView();
     // this.SelectedBOT.Type = this.BOTCreationFormGroup.get('Type').value;
+  }
+
+  RunClicked(): void {
+    this.UpdateBOTStatus('Run');
+  }
+
+  PassClicked(): void {
+    this.UpdateBOTStatus('Pass');
+  }
+
+  RetireClicked(): void {
+    this.UpdateBOTStatus('Retire');
+  }
+
+  UpdateBOTStatus(Status: string): void {
+    this._BOTService.UpdateBOTStatus(this.SelectedBOT.botID, Status, this.CurrentUserID).subscribe(
+      (data) => {
+        this.notificationSnackBarComponent.openSnackBar('BOT status updated successfully', SnackBarStatus.success);
+        this.SelectedBOT.Status = Status;
+        // this.ResetControl();
+        // this.GetAllBOTHeaders();
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
   }
 
 

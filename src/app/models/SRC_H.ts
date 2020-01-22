@@ -1,6 +1,11 @@
 import { Guid } from 'guid-typescript';
 export class SRCH {
-    srcID: Guid;
+    srcID: number;
+    title: string;
+    AdapterID: Guid;
+}
+export class SourceAdapterView {
+    srcID: number;
     title: string;
     AdapterID: Guid;
 }

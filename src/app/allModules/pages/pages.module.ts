@@ -45,12 +45,16 @@ import { FuseCountdownModule, FuseHighlightModule, FuseMaterialColorPickerModule
 
 import { FuseSharedModule } from '@fuse/shared.module';
 import { FormsModule } from '@angular/forms';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AssetManagementComponent } from './asset-management/asset-management.component';
 import { BoatassemplyComponent } from './boatassemply/boatassemply.component';
 import { SourcedefinationComponent } from './sourcedefination/sourcedefination.component';
 import { TransformComponent } from './transform/transform.component';
 import { AdopterComponent } from './adopter/adopter.component';
+import { SourceDefinitionDialogComponent } from './source-definition-dialog/source-definition-dialog.component';
+import { TransformationRuleDialogComponent } from './transformation-rule-dialog/transformation-rule-dialog.component';
+import { ScheduleDialogComponent } from './schedule-dialog/schedule-dialog.component';
 
 const routes = [
     {
@@ -62,26 +66,26 @@ const routes = [
         component: AssetManagementComponent
     },
     {
-        path:'botassembly',
-        component:BoatassemplyComponent
+        path: 'botassembly',
+        component: BoatassemplyComponent
     },
     {
-        path:'sourcedfination',
-        component:SourcedefinationComponent
+        path: 'sourcedfination',
+        component: SourcedefinationComponent
     },
     {
-        path:'transform',
-        component:TransformComponent
+        path: 'transform',
+        component: TransformComponent
     },
     {
-        path:'adopter',
-        component:AdopterComponent
+        path: 'adopter',
+        component: AdopterComponent
     },
     {
         path: '**',
         redirectTo: '/auth/login'
     }
-    
+
 ];
 
 @NgModule({
@@ -135,10 +139,12 @@ const routes = [
         FuseMaterialColorPickerModule,
         FuseWidgetModule,
 
-        FormsModule
+        FormsModule,
+        NgxMaterialTimepickerModule
     ],
-    declarations: [DashboardComponent, AssetManagementComponent, BoatassemplyComponent, SourcedefinationComponent, TransformComponent, AdopterComponent],
+    declarations: [DashboardComponent, AssetManagementComponent, BoatassemplyComponent,
+        SourcedefinationComponent, TransformComponent, AdopterComponent, SourceDefinitionDialogComponent, TransformationRuleDialogComponent, ScheduleDialogComponent],
     providers: [],
-    entryComponents: []
+    entryComponents: [SourceDefinitionDialogComponent, TransformationRuleDialogComponent, ScheduleDialogComponent]
 })
-export class PagesModule {}
+export class PagesModule { }

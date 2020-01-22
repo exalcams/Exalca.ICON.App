@@ -42,11 +42,15 @@ export class ADAPTERTYPEC {
 export class BOTH {
     botID: number;
     Title: string;
+    srcID: number;
+    trfID: number;
     Status: string;
     Comments: string;
     Freq: string;
     Interval: string;
+    DatePart: string;
     StartDate: Date;
+    InstancesCount: number;
     UntilWhen: Date;
     CreatedOn: Date;
     CreatedBy: string;
@@ -56,6 +60,10 @@ export class BOTH {
 export class BOTHView {
     botID: number;
     Title: string;
+    srcID: number;
+    srcTitle: string;
+    trfID: number;
+    trfTitle: string;
     Status: string;
     Freq: string;
 }
@@ -102,7 +110,11 @@ export class TRFHView {
     ModifiedBy: string;
     TRFIList: TRFI[];
 }
-
+export class TransformationAdapterView {
+    trfID: number;
+    Title: string;
+    AdapterID: number;
+}
 export class AdapterHView {
     AdapterID: number;
     Type: string;

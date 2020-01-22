@@ -1,0 +1,94 @@
+<div class="dialog-content-wrapper normal">
+  <mat-toolbar class="mat-accent m-0">
+    <mat-toolbar-row fxFlex fxLayout="row" fxLayoutAlign="space-between center">
+      <span class="title dialog-title">Schedule</span>
+      <button mat-icon-button (click)="matDialogRef.close()" aria-label="Close dialog">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+
+  <div mat-dialog-content class="p-24 m-0" fusePerfectScrollbar>
+    <form name="scheduleForm" [formGroup]="scheduleForm" novalidate fxLayout="column" fxFlex>
+      <mat-form-field>
+        <mat-select placeholder="Frequency" formControlName="Freq" (selectionChange)="FrequencySelected($event)">
+          <mat-option *ngFor="let fre of FrequencyList" [value]="fre">{{fre}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="scheduleForm.get('Freq').touched && scheduleForm.get('Freq').hasError('required')">
+          Freq is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="scheduleForm.get('Freq')?.value==='Repeat'">
+        <input placeholder="Interval in min" matInput formControlName="Interval1">
+        <mat-error *ngIf="scheduleForm.get('Interval1').touched && scheduleForm.get('Interval1').hasError('required')">
+          Interval is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="scheduleForm.get('Freq')?.value && scheduleForm.get('Freq')?.value!=='Repeat'">
+        <!-- <input placeholder="Interval in time" matInput formControlName="Interval2"> -->
+        <input matInput [ngxTimepicker]="pickert1" formControlName="Interval2" [disableClick]="true" readonly>
+        <ngx-material-timepicker-toggle matSuffix [for]="pickert1"></ngx-material-timepicker-toggle>
+        <ngx-material-timepicker #pickert1></ngx-material-timepicker>
+        <mat-error *ngIf="scheduleForm.get('Interval2').touched && scheduleForm.get('Interval2').hasError('required')">
+          Interval is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="scheduleForm.get('Freq')?.value==='Weekly'">
+        <mat-select placeholder="Day" formControlName="DatePart1">
+          <mat-option *ngFor="let fre of DayList" [value]="fre">{{fre}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="scheduleForm.get('DatePart1').touched && scheduleForm.get('DatePart1').hasError('required')">
+          Day is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field *ngIf="scheduleForm.get('Freq')?.value==='Monthly'">
+        <!-- <input matInput placeholder="Date" [matDatepicker]="picker2" formControlName="DatePart2">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker> -->
+        <mat-select placeholder="Date" formControlName="DatePart2">
+          <mat-option *ngFor="let fre of DateList" [value]="fre">{{fre}}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="scheduleForm.get('DatePart2').touched && scheduleForm.get('DatePart2').hasError('required')">
+          Date is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Start Date" [matDatepicker]="picker" formControlName="StartDate">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+        <mat-error *ngIf="scheduleForm.get('StartDate').touched && scheduleForm.get('StartDate').hasError('required')">
+          Start Date is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input placeholder="Instances Count" matInput formControlName="InstancesCount">
+        <mat-error
+          *ngIf="scheduleForm.get('InstancesCount').touched && scheduleForm.get('InstancesCount').hasError('required')">
+          Instances Count is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput placeholder="Until When" [matDatepicker]="picker1" formControlName="UntilWhen">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+        <mat-error *ngIf="scheduleForm.get('UntilWhen').touched && scheduleForm.get('UntilWhen').hasError('required')">
+          Until When is required
+        </mat-error>
+      </mat-form-field>
+
+    </form>
+
+  </div>
+
+  <mat-dialog-actions class="m-0 p-16" fxLayoutAlign="space-between center">
+    <button mat-button type="button" (click)="CloseClicked()">Cancel</button>
+    <button mat-button type="button" color="accent" (click)="YesClicked()">Yes</button>
+  </mat-dialog-actions>
+</div>
