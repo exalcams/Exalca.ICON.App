@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
 import { SRCI, TRFHView, TRFI, TRFH, AdapterH, AdapterItemRule } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
@@ -14,11 +14,14 @@ import { DatePipe } from '@angular/common';
 import { NotificationDialogComponent } from 'app/notifications/notification-dialog/notification-dialog.component';
 import { TransformService } from 'app/services/Transform.service';
 import { AdapterService } from 'app/services/adapter.service';
+import { fuseAnimations } from '@fuse/animations';
 
 @Component({
   selector: 'app-transform',
   templateUrl: './transform.component.html',
-  styleUrls: ['./transform.component.scss']
+  styleUrls: ['./transform.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  animations: fuseAnimations
 })
 export class TransformComponent implements OnInit {
   authenticationDetails: AuthenticationDetails;

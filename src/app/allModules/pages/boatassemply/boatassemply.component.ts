@@ -23,8 +23,8 @@ import { ScheduleDialogComponent } from '../schedule-dialog/schedule-dialog.comp
   selector: 'app-boatassemply',
   templateUrl: './boatassemply.component.html',
   styleUrls: ['./boatassemply.component.scss'],
-  // encapsulation: ViewEncapsulation.None,
-  // animations: fuseAnimations
+  encapsulation: ViewEncapsulation.None,
+  animations: fuseAnimations
 })
 export class BoatassemplyComponent implements OnInit {
   authenticationDetails: AuthenticationDetails;
@@ -120,7 +120,16 @@ export class BoatassemplyComponent implements OnInit {
       (data) => {
         this.AllBOTs = data as BOTHView[];
         if (this.AllBOTs.length && this.AllBOTs.length > 0) {
-          this.LoadSelectedBOTH(this.AllBOTs[0]);
+          if (this.SelectedBOTID) {
+            const sBOT = this.AllBOTs.filter(x => x.botID === this.SelectedBOTID)[0];
+            if (sBOT) {
+              this.LoadSelectedBOTH(sBOT);
+            } else {
+              this.LoadSelectedBOTH(this.AllBOTs[0]);
+            }
+          } else {
+            this.LoadSelectedBOTH(this.AllBOTs[0]);
+          }
         }
       },
       (err) => {
@@ -178,7 +187,7 @@ export class BoatassemplyComponent implements OnInit {
 
   OpenSourceDefinitionDialog(): void {
     const data: SourceAdapterView = new SourceAdapterView();
-    if (this.SelectedBOTID && this.SelectedBOTView) {
+    if (this.SelectedBOTView.srcID) {
       data.srcID = this.SelectedBOTView.srcID;
       data.title = this.SelectedBOTView.srcTitle;
     }
@@ -192,6 +201,8 @@ export class BoatassemplyComponent implements OnInit {
         if (result) {
           const res = result as SourceAdapterView;
           this.SelectedBOT.srcID = res.srcID;
+          this.SelectedBOTView.srcID = res.srcID;
+          this.SelectedBOTView.srcTitle = res.title;
           this.BOTCreationFormGroup.get('srcID').patchValue(res.srcID);
         }
       });
@@ -199,7 +210,7 @@ export class BoatassemplyComponent implements OnInit {
 
   OpenTransformationRuleDialog(): void {
     const data: TransformationAdapterView = new TransformationAdapterView();
-    if (this.SelectedBOTID && this.SelectedBOTView) {
+    if (this.SelectedBOTView.trfID) {
       data.trfID = this.SelectedBOTView.trfID;
       data.Title = this.SelectedBOTView.trfTitle;
     }
@@ -213,6 +224,8 @@ export class BoatassemplyComponent implements OnInit {
         if (result) {
           const res = result as TransformationAdapterView;
           this.SelectedBOT.trfID = res.trfID;
+          this.SelectedBOTView.trfID = res.trfID;
+          this.SelectedBOTView.trfTitle = res.Title;
           this.BOTCreationFormGroup.get('trfID').patchValue(res.trfID);
         }
       });
@@ -220,18 +233,22 @@ export class BoatassemplyComponent implements OnInit {
 
   TestConnection(): void {
     if (this.SelectedBOT.srcID && this.SelectedBOT.trfID) {
-      this._BOTService.TestConnection(this.SelectedBOT.trfID).subscribe(
+      this.IsProgressBarVisibile = true;
+      this._BOTService.TestConnection(this.SelectedBOT.srcID).subscribe(
         (data) => {
           if (data) {
-            console.log(data);
+            // console.log(data);
             if (!this.SelectedBOT.Status) {
               this.SelectedBOT.Status = 'Test';
             }
+            this.IsProgressBarVisibile = false;
             this.notificationSnackBarComponent.openSnackBar('Test succeeded', SnackBarStatus.success);
           }
         },
         (err) => {
+          this.IsProgressBarVisibile = false;
           console.error(err);
+          this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
         }
       );
     } else {
@@ -253,6 +270,7 @@ export class BoatassemplyComponent implements OnInit {
           console.log(res);
           if (res) {
             this.SelectedBOT = res;
+            this.SelectedBOT.Title = this.BOTCreationFormGroup.get('Title').value;
             this.InsertBotDetails();
             if (this.BOTCreationFormGroup.valid) {
               if (!this.SelectedBOT.botID) {
@@ -344,11 +362,16 @@ export class BoatassemplyComponent implements OnInit {
   CreateBOT(): void {
     this.IsProgressBarVisibile = true;
     this.GetHeaderValues();
+    this.SelectedBOT.Status = 'Schedule';
     this._BOTService.CreateBOT(this.SelectedBOT).subscribe(
       (data) => {
+        const dat = data as BOTH;
+        if (dat) {
+          this.SelectedBOTID = dat.botID;
+        }
         this.notificationSnackBarComponent.openSnackBar('BOT details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
-        this.ResetControl();
+        // this.ResetControl();
         this.GetAllBOTHeaders();
       },
       (err) => {
@@ -383,30 +406,40 @@ export class BoatassemplyComponent implements OnInit {
   }
 
   RunClicked(): void {
-    this.UpdateBOTStatus('Run');
+    this.UpdateBOTStatus('Run', 'Started');
   }
 
-  PassClicked(): void {
-    this.UpdateBOTStatus('Pass');
+  PauseClicked(): void {
+    this.UpdateBOTStatus('Pause', 'Pauseed');
   }
 
   RetireClicked(): void {
-    this.UpdateBOTStatus('Retire');
+    this.UpdateBOTStatus('Retire', 'Retired');
   }
 
-  UpdateBOTStatus(Status: string): void {
+  UpdateBOTStatus(Status: string, StatusMessage: string): void {
+    this.IsProgressBarVisibile = true;
     this._BOTService.UpdateBOTStatus(this.SelectedBOT.botID, Status, this.CurrentUserID).subscribe(
       (data) => {
-        this.notificationSnackBarComponent.openSnackBar('BOT status updated successfully', SnackBarStatus.success);
+        this.IsProgressBarVisibile = false;
+        this.notificationSnackBarComponent.openSnackBar(`BOT is ${StatusMessage} successfully`, SnackBarStatus.success);
         this.SelectedBOT.Status = Status;
+        this.UpdateBOTViewStatus(Status);
         // this.ResetControl();
         // this.GetAllBOTHeaders();
       },
       (err) => {
+        this.IsProgressBarVisibile = false;
         console.error(err);
+        this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
       }
     );
   }
 
-
+  UpdateBOTViewStatus(Status: string): void {
+    const bot = this.AllBOTs.filter(x => x.botID === this.SelectedBOTID)[0];
+    if (bot) {
+      bot.Status = Status;
+    }
+  }
 }

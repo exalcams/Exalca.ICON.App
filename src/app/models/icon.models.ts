@@ -66,6 +66,7 @@ export class BOTHView {
     trfTitle: string;
     Status: string;
     Freq: string;
+    CreatedOn: Date;
 }
 export class BOTLOG {
     RunID: Guid;

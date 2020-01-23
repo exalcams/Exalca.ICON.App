@@ -82,7 +82,7 @@ export class ScheduleDialogComponent implements OnInit {
   }
 
   SetInterval1Validator(): void {
-    this.scheduleForm.get('Interval1').setValidators(Validators.required);
+    this.scheduleForm.get('Interval1').setValidators([Validators.required, Validators.pattern('[1-9][0-9]*')]);
     this.scheduleForm.get('Interval1').updateValueAndValidity();
   }
   SetInterval2Validator(): void {

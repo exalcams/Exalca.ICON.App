@@ -66,8 +66,8 @@ export class BotService {
       .pipe(catchError(this.errorHandler));
   }
 
-  TestConnection(trfID: number): Observable<any | string> {
-    return this._httpClient.get<any>(`${this.baseAddress}api/BOT/TestConnection?trfID=${trfID}`)
+  TestConnection(srcID: number): Observable<any | string> {
+    return this._httpClient.get<any>(`${this.baseAddress}api/BOT/TestConnection?srcID=${srcID}`)
       .pipe(catchError(this.errorHandler));
   }
 

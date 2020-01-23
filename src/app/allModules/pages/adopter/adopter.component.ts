@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
 import { AdapterHView, ADAPTERI, AdapterH, ADAPTERTYPEC } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
@@ -10,11 +10,14 @@ import { SnackBarStatus } from 'app/notifications/notification-snack-bar/notific
 import { Router } from '@angular/router';
 import { NotificationDialogComponent } from 'app/notifications/notification-dialog/notification-dialog.component';
 import { AdapterService } from 'app/services/adapter.service';
+import { fuseAnimations } from '@fuse/animations';
 
 @Component({
   selector: 'app-adopter',
   templateUrl: './adopter.component.html',
-  styleUrls: ['./adopter.component.scss']
+  styleUrls: ['./adopter.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  animations: fuseAnimations
 })
 export class AdopterComponent implements OnInit {
   authenticationDetails: AuthenticationDetails;
