@@ -244,17 +244,17 @@
     width: $width;
     border-radius: $borderRadius;
   }
-  .roundCommon {
+  .roundCommon1 {
     @include RoundMixin(10px, 10px, 10px);
   }
-  .round {
-    @extend .roundCommon;
+  .round11 {
+    @extend .roundCommon1;
     background-color: #c6c6c6;
     // rgb(187, 185, 185)
     border: 2px solid #c6c6c6;
   }
   .round1 {
-    @extend .roundCommon;
+    @extend .roundCommon1;
     background-color: #2ecc71;
     border: 2px solid #2ecc71;
   }
