@@ -389,6 +389,7 @@ export class BoatassemplyComponent implements OnInit {
       (data) => {
         this.notificationSnackBarComponent.openSnackBar('BOT details updated successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
+        this.UpdateBOTView(this.SelectedBOT);
         // this.ResetControl();
         // this.GetAllBOTHeaders();
       },
@@ -424,7 +425,7 @@ export class BoatassemplyComponent implements OnInit {
         this.IsProgressBarVisibile = false;
         this.notificationSnackBarComponent.openSnackBar(`BOT is ${StatusMessage} successfully`, SnackBarStatus.success);
         this.SelectedBOT.Status = Status;
-        this.UpdateBOTViewStatus(Status);
+        this.UpdateBOTView(this.SelectedBOT);
         // this.ResetControl();
         // this.GetAllBOTHeaders();
       },
@@ -436,10 +437,12 @@ export class BoatassemplyComponent implements OnInit {
     );
   }
 
-  UpdateBOTViewStatus(Status: string): void {
+  UpdateBOTView(selectedBOT: BOTH): void {
     const bot = this.AllBOTs.filter(x => x.botID === this.SelectedBOTID)[0];
     if (bot) {
-      bot.Status = Status;
+      bot.Title = selectedBOT.Title;
+      bot.Freq = selectedBOT.Freq;
+      bot.Status = selectedBOT.Status;
     }
   }
 }
