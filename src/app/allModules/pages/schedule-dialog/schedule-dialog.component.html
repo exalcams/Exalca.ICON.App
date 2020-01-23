@@ -20,15 +20,20 @@
       </mat-form-field>
 
       <mat-form-field *ngIf="scheduleForm.get('Freq')?.value==='Repeat'">
-        <input placeholder="Interval in min" matInput formControlName="Interval1">
+        <input placeholder="Interval in min" matInput formControlName="Interval1" pattern="^[1-9]\d*$">
         <mat-error *ngIf="scheduleForm.get('Interval1').touched && scheduleForm.get('Interval1').hasError('required')">
           Interval is required
+        </mat-error>
+        <mat-error *ngIf="scheduleForm.get('Interval1').touched && !scheduleForm.get('Interval1').hasError('required')
+        && scheduleForm.get('Interval1').hasError('pattern')">
+          Please enter a valid interval
         </mat-error>
       </mat-form-field>
 
       <mat-form-field *ngIf="scheduleForm.get('Freq')?.value && scheduleForm.get('Freq')?.value!=='Repeat'">
         <!-- <input placeholder="Interval in time" matInput formControlName="Interval2"> -->
-        <input matInput [ngxTimepicker]="pickert1" formControlName="Interval2" [disableClick]="true" readonly>
+        <input placeholder="Interval in time" matInput [ngxTimepicker]="pickert1" formControlName="Interval2"
+          [disableClick]="true" readonly>
         <ngx-material-timepicker-toggle matSuffix [for]="pickert1"></ngx-material-timepicker-toggle>
         <ngx-material-timepicker #pickert1></ngx-material-timepicker>
         <mat-error *ngIf="scheduleForm.get('Interval2').touched && scheduleForm.get('Interval2').hasError('required')">
@@ -67,10 +72,14 @@
       </mat-form-field>
 
       <mat-form-field>
-        <input placeholder="Instances Count" matInput formControlName="InstancesCount">
+        <input placeholder="Instances Count" matInput formControlName="InstancesCount" pattern="^[1-9]\d*$">
         <mat-error
           *ngIf="scheduleForm.get('InstancesCount').touched && scheduleForm.get('InstancesCount').hasError('required')">
           Instances Count is required
+        </mat-error>
+        <mat-error *ngIf="scheduleForm.get('InstancesCount').touched && !scheduleForm.get('InstancesCount').hasError('required')&&
+        scheduleForm.get('InstancesCount').hasError('pattern')">
+          Please enter a valid number
         </mat-error>
       </mat-form-field>
 
