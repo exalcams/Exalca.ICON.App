@@ -10,7 +10,7 @@ export class AdapterH {
     ModifiedBy: string;
 }
 export class SRCI {
-    srcID: string;
+    srcID: number;
     Item: string;
     Field1: string;
     Field2: string;
@@ -76,7 +76,7 @@ export class BOTLOG {
 
 }
 export class SRCH {
-    srcID: Guid;
+    srcID: number;
     title: string;
     AdapterID: number;
 }
@@ -139,14 +139,21 @@ export class ADAPTERIView {
     ModifiedBy: string;
 }
 export class SourceView {
-    AdapterID: Guid;
-    Type: string;
-    Title: string;
-    Status: boolean;
-    SRCIList: SRCI[];
+    srcID: number;
+    title: string;
+    AdapterID: number;
+    SourceItemList: SourcdeDefinationValues[];
 }
 
 export class AdapterItemRule {
     AdapterID: number;
     Value: string;
+}   
+export class SourcdeDefinationValues{
+    srcID: number;
+    Item: string;
+    Field1: string;
+    Field2: string;
+    FileExt: string;
+    
 }
