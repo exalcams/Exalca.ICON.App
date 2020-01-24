@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable, throwError } from 'rxjs';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { AdapterH, ADAPTERI } from 'app/models/icon.models';
+import { AdapterH, ADAPTERI, SourceView, SourcdeDefinationValues } from 'app/models/icon.models';
 import { catchError } from 'rxjs/operators';
 import { SourceAdapterView } from 'app/models/SRC_H';
 
@@ -38,8 +38,30 @@ export class SourcedefinationService {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Source/GetAdapterById?AdapterID=${AdapterID}`)
       .pipe(catchError(this.errorHandler));
   }
+<<<<<<< HEAD
   GetAllSourceAdapterView(): Observable<SourceAdapterView[] | string> {
     return this._httpClient.get<SourceAdapterView[]>(`${this.baseAddress}api/Source/GetAllSourceAdapterView`)
+=======
+  CreateSource(adapterHView: SourceView): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Source/CreateSource`,
+      adapterHView,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+      .pipe(catchError(this.errorHandler));
+  }
+
+  UpdateSource(adapterHView: SourceView): Observable<any> {
+    return this._httpClient.post<any>(`${this.baseAddress}api/Source/UpdateSource`,
+      adapterHView,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      })
+>>>>>>> Source definition changes..
       .pipe(catchError(this.errorHandler));
   }
 }

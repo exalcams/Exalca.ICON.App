@@ -36,8 +36,7 @@
             <div class="h2 mb-24"><b>Source Defination</b></div>
             <div fxLayout="row" fxLayoutAlign="start">
               <mat-form-field class="pl-8" fxFlex="50">
-                <input matInput placeholder="Title" >
-                
+                <input matInput placeholder="Title" formControlName="Title">
               </mat-form-field>
               <mat-form-field class="pl-8" fxFlex="50">
                 <mat-select placeholder="Type" matInput formControlName="Type" (selectionChange)="SelcetAdopter($event.value)">
@@ -79,7 +78,7 @@
               </div>
               <div fxLayout="row" class="borderTop mt-4"></div>
               <table *ngIf="AdapterItemDataSource?.value?.length" mat-table [dataSource]="AdapterItemDataSource"
-                class="mat-elevation-z8" formArrayName="AdapterItems">
+                class="mat-elevation-z8" formArrayName="SourceItems">
                 <tr mat-header-row *matHeaderRowDef="AdapterItemColumns; sticky: true">
                 </tr>
                 <tr mat-row *matRowDef="let row;let i = index; columns: AdapterItemColumns;"></tr>
@@ -88,8 +87,8 @@
                   <th mat-header-cell *matHeaderCellDef class="boldItalicClass"> From </th>
                   <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index">
                     <input matInput formControlName="Item">
-                    <span class="pl-4 errorClass" *ngIf="TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Key').touched &&
-          TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Item').hasError('required')">
+                    <span class="pl-4 errorClass" *ngIf="fileMapperMainFormGroup.get('SourceItems').controls[index].get('Item').touched &&
+          fileMapperMainFormGroup.get('SourceItems').controls[index].get('Item').hasError('required')">
                       *
                     </span>
                   </td>
@@ -99,8 +98,8 @@
                   <th mat-header-cell *matHeaderCellDef class="boldItalicClass"> Subject </th>
                   <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index" class="pl-8">
                     <input matInput formControlName="Field1">
-                    <span class="pl-4 errorClass" *ngIf="TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Value').touched &&
-          TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Field1').hasError('required')">
+                    <span class="pl-4 errorClass" *ngIf="fileMapperMainFormGroup.get('SourceItems').controls[index].get('Field1').touched &&
+          fileMapperMainFormGroup.get('SourceItems').controls[index].get('Field1').hasError('required')">
                       *
                     </span>
                   </td>
@@ -109,8 +108,8 @@
                   <th mat-header-cell *matHeaderCellDef class="boldItalicClass"> Attachement </th>
                   <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index" class="pl-8">
                     <input matInput formControlName="Field2">
-                    <span class="pl-4 errorClass" *ngIf="TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Value').touched &&
-          TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Field2').hasError('required')">
+                    <span class="pl-4 errorClass" *ngIf="fileMapperMainFormGroup.get('SourceItems').controls[index].get('Field2').touched &&
+          fileMapperMainFormGroup.get('SourceItems').controls[index].get('Field2').hasError('required')">
                       *
                     </span>
                   </td>
@@ -119,8 +118,8 @@
                   <th mat-header-cell *matHeaderCellDef class="boldItalicClass"> Training Id </th>
                   <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index" class="pl-8">
                     <input matInput formControlName="FileExt">
-                    <span class="pl-4 errorClass" *ngIf="TemplateCreationFormGroup.get('AdapterItems').controls[index].get('Value').touched &&
-          TemplateCreationFormGroup.get('AdapterItems').controls[index].get('FileExt').hasError('required')">
+                    <span class="pl-4 errorClass" *ngIf="fileMapperMainFormGroup.get('SourceItems').controls[index].get('FileExt').touched &&
+          fileMapperMainFormGroup.get('SourceItems').controls[index].get('FileExt').hasError('required')">
                       *
                     </span>
                   </td>

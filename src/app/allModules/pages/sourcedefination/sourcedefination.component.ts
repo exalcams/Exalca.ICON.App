@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { fuseAnimations } from '@fuse/animations';
-import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog } from '@angular/material';
+import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
 import { SRCI, SourceView, AdapterH, ADAPTERI } from 'app/models/icon.models';
 import { FormArray, AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
@@ -14,6 +14,7 @@ import { AdapterService } from 'app/services/adapter.service';
 import { DatePipe } from '@angular/common';
 import { SnackBarStatus } from 'app/notifications/notification-snack-bar/notification-snackbar-status-enum';
 import { SourcedefinationService } from 'app/services/sourcedefination.service';
+import { NotificationDialogComponent } from 'app/notifications/notification-dialog/notification-dialog.component';
 
 @Component({
   selector: 'app-sourcedefination',
@@ -49,7 +50,7 @@ export class SourcedefinationComponent implements OnInit {
   SelectedAdapter: SourceView;
   notificationSnackBarComponent: NotificationSnackBarComponent;
   IsProgressBarVisibile: boolean;
-  AdapterCreationFormGroup: FormGroup;
+  fileMapperMainFormGroup: FormGroup;
   AdapterItemList: SRCI[];
   SourceDataSource: MatTableDataSource<SRCI>;
   AllAdapters: ADAPTERI[] = [];
@@ -64,7 +65,8 @@ export class SourcedefinationComponent implements OnInit {
     private dialog: MatDialog,
     private _datePipe: DatePipe
   ) {
-    
+    this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
+    this.SelectedAdapter = new SourceView();
    }
 
    ngOnInit(): void {
@@ -82,25 +84,28 @@ export class SourcedefinationComponent implements OnInit {
     } else {
       this._router.navigate(['/auth/login']);
     }
-    this.AdopterCreationFormGroup = this._formBuilder.group({
+    this.fileMapperMainFormGroup = this._formBuilder.group({
       Type: ['', Validators.required],
-      AdapterItems: this.AdapterItemFormArray
+      Title:['',Validators.required],
+      SourceItems: this.AdapterItemFormArray
      
     });
     this.AllTypes = ['Email', 'FTP'];
     this.GetAllAdapter();
   }
   ResetForm(): void {
-    this.AdapterCreationFormGroup.reset();
-    Object.keys(this.AdapterCreationFormGroup.controls).forEach(key => {
-      this.AdapterCreationFormGroup.get(key).markAsUntouched();
+    this.fileMapperMainFormGroup.reset();
+    Object.keys(this.fileMapperMainFormGroup.controls).forEach(key => {
+      this.fileMapperMainFormGroup.get(key).markAsUntouched();
     });
   }
   ResetControl(): void {
     this.ResetSourceItems();
     this.ResetForm();
     this.SelectedAdapter = new SourceView();
+    this.SelectedAdapter.SourceItemList = [];
     this.AdapterItemList = [];
+
   }
   ClearFormArray = (formArray: FormArray) => {
     while (formArray.length !== 0) {
@@ -110,6 +115,9 @@ export class SourcedefinationComponent implements OnInit {
   ResetSourceItems(): void {
     this.ClearFormArray(this.AdapterItemFormArray);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+    this.GetAllAdapter();
+    
+
   }
   GetAllAdapter(): void {
     this._sourceService.GetAllAdapter().subscribe(
@@ -156,13 +164,168 @@ export class SourcedefinationComponent implements OnInit {
   AddAdapterItemFormGroup(): void {
     const row = this._formBuilder.group({
       Item: ['', Validators.required],
-      Field1: [''],
-      Field2: [''],
-      FileExt: [''],
+      Field1: ['',Validators.required],
+      Field2: ['',Validators.required],
+      FileExt: ['',Validators.required],
     });
     this.AdapterItemFormArray.insert(0, row);
     this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
   }
 
+  SubmitClicked():void{
+    // console.log(this.fileMapperMainFormGroup.get('Type').value);
+    // console.log(this.fileMapperMainFormGroup.get('Title').value);
+    if (this.fileMapperMainFormGroup.valid) {
+      const AdapterItemsArry = this.fileMapperMainFormGroup.get('SourceItems') as FormArray;
+      console.log(AdapterItemsArry.value);
+      if (AdapterItemsArry.length <= 0) {
+        this.notificationSnackBarComponent.openSnackBar('Please add values', SnackBarStatus.danger);
+      } else {
+        this.GetHeaderValues();
+        this.GetItemValues();
+        this.CheckForDuplicateParamID();
+      }
+    } else {
+      this.ShowValidationErrors(this.fileMapperMainFormGroup);
+    }
+  }
+  GetHeaderValues(): void {
+    this.SelectedAdapter = new SourceView();
+    this.SelectedAdapter.AdapterID = this.fileMapperMainFormGroup.get('Type').value;
+    this.SelectedAdapter.title=this.fileMapperMainFormGroup.get('Title').value;
+
+  }
+  GetItemValues(): void {
+    this.AdapterItemList = [];
+    this.SelectedAdapter.SourceItemList = [];
+    const AdapterItemsArr = this.fileMapperMainFormGroup.get('SourceItems') as FormArray;
+    AdapterItemsArr.controls.forEach((x, i) => {
+      const AdapterItem: SRCI = new SRCI();
+      // AdapterItem. = this.SelectedAdapter.srcID;
+      AdapterItem.Item = x.get('Item').value;
+      AdapterItem.Field1 = x.get('Field1').value;
+      AdapterItem.Field2 = x.get('Field2').value;
+      AdapterItem.FileExt = x.get('FileExt').value;
+      this.SelectedAdapter.SourceItemList.push(AdapterItem);
+    });
+  }
+  ShowValidationErrors(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      if (!formGroup.get(key).valid) {
+        console.log(key);
+      }
+      formGroup.get(key).markAsTouched();
+      formGroup.get(key).markAsDirty();
+      if (formGroup.get(key) instanceof FormArray) {
+        const FormArrayControls = formGroup.get(key) as FormArray;
+        Object.keys(FormArrayControls.controls).forEach(key1 => {
+          if (FormArrayControls.get(key1) instanceof FormGroup) {
+            const FormGroupControls = FormArrayControls.get(key1) as FormGroup;
+            Object.keys(FormGroupControls.controls).forEach(key2 => {
+              FormGroupControls.get(key2).markAsTouched();
+              FormGroupControls.get(key2).markAsDirty();
+              if (!FormGroupControls.get(key2).valid) {
+                console.log(key2);
+              }
+            });
+          } else {
+            FormArrayControls.get(key1).markAsTouched();
+            FormArrayControls.get(key1).markAsDirty();
+          }
+        });
+      }
+    });
+  }
+  CheckForDuplicateParamID(): void {
+    // const valueArr = this.SelectedTransform.TRFIList.map(x => x.paramID);
+    // const isDuplicate = valueArr.some(function (item, idx): boolean {
+    //   return valueArr.indexOf(item) !== idx;
+    // });
+    // return isDuplicate;
+
+    const uniq = this.SelectedAdapter.SourceItemList
+      .map((x) => {
+        return {
+          count: 1,
+          Key: x.Item
+        };
+      })
+      .reduce((a, b) => {
+        a[b.Key] = (a[b.Key] || 0) + b.count;
+        return a;
+      }, {});
+
+    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
+    if (duplicates && duplicates.length && duplicates.length > 0) {
+      const duplicateKeys = duplicates.join();
+      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
+    } else {
+      if (this.SelectedAdapter.AdapterID) {
+        const Actiontype = 'Update';
+        const Catagory = 'Template';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      } else {
+        const Actiontype = 'Create';
+        const Catagory = 'Template';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      }
+    }
+  }
+  OpenConfirmationDialog(Actiontype: string, Catagory: string): void {
+    const dialogConfig: MatDialogConfig = {
+      data: {
+        Actiontype: Actiontype,
+        Catagory: Catagory
+      },
+    };
+    const dialogRef = this.dialog.open(NotificationDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          if (Actiontype === 'Create') {
+            this.CreateAdapter();
+          }
+          else if (Actiontype === 'Update') {
+            this.CreateAdapter();
+          }
+          else if (Actiontype === 'Approve') {
+            // this.ApproveHeader();
+          }
+        }
+      });
+  }
+  CreateAdapter(): void {
+    this.IsProgressBarVisibile = true;
+    this._sourceService.CreateSource(this.SelectedAdapter).subscribe(
+      (data) => {
+        this.notificationSnackBarComponent.openSnackBar('Source details created successfully', SnackBarStatus.success);
+        this.IsProgressBarVisibile = false;
+        this.ResetControl();
+        this.GetAllAdapter();
+      },
+      (err) => {
+        console.error(err);
+        this.IsProgressBarVisibile = false;
+        this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
+      }
+    );
+  }
+
+  UpdateAdapter(): void {
+    this.IsProgressBarVisibile = true;
+    this._sourceService.UpdateSource(this.SelectedAdapter).subscribe(
+      (data) => {
+        this.notificationSnackBarComponent.openSnackBar('Source details created successfully', SnackBarStatus.success);
+        this.IsProgressBarVisibile = false;
+        this.ResetControl();
+        this.GetAllAdapter();
+      },
+      (err) => {
+        console.error(err);
+        this.IsProgressBarVisibile = false;
+        this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
+      }
+    );
+  }
 }
-const ELEMENT_DATA1: SRCI[] = [{ srcID: 'b43a4086-ef7a-4d20-9bcf-338a3a928041', Item: '8001002118', Field1: '10', Field2: '25411.00', FileExt: 'xyz' }];
+//const ELEMENT_DATA1: SRCI[] = [{ srcID: 'b43a4086-ef7a-4d20-9bcf-338a3a928041', Item: '8001002118', Field1: '10', Field2: '25411.00', FileExt: 'xyz' }];
