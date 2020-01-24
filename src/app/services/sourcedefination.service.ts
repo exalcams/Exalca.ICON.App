@@ -38,10 +38,10 @@ export class SourcedefinationService {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Source/GetAdapterById?AdapterID=${AdapterID}`)
       .pipe(catchError(this.errorHandler));
   }
-<<<<<<< HEAD
   GetAllSourceAdapterView(): Observable<SourceAdapterView[] | string> {
     return this._httpClient.get<SourceAdapterView[]>(`${this.baseAddress}api/Source/GetAllSourceAdapterView`)
-=======
+    .pipe(catchError(this.errorHandler));
+  }
   CreateSource(adapterHView: SourceView): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Source/CreateSource`,
       adapterHView,
@@ -61,7 +61,6 @@ export class SourcedefinationService {
           'Content-Type': 'application/json'
         })
       })
->>>>>>> Source definition changes..
       .pipe(catchError(this.errorHandler));
   }
 }
