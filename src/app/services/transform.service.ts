@@ -5,7 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
-import { AdapterHView, AdapterH, ADAPTERI, ADAPTERTYPEC, TRFHView, TRFH, TRFI, TransformationAdapterView } from 'app/models/icon.models';
+import { AdapterHView, AdapterH, ADAPTERI, TRFHView, TRFH, TRFI, TransformationAdapterView } from 'app/models/icon.models';
 import { Guid } from 'guid-typescript';
 
 @Injectable({

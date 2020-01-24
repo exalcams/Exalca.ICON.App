@@ -420,7 +420,7 @@ export class BoatassemplyComponent implements OnInit {
 
   UpdateBOTStatus(Status: string, StatusMessage: string): void {
     this.IsProgressBarVisibile = true;
-    this._BOTService.UpdateBOTStatus(this.SelectedBOT.botID, Status, this.CurrentUserID).subscribe(
+    this._BOTService.UpdateBOTStatus(this.SelectedBOT.botID, Status, this.CurrentUserID.toString()).subscribe(
       (data) => {
         this.IsProgressBarVisibile = false;
         this.notificationSnackBarComponent.openSnackBar(`BOT is ${StatusMessage} successfully`, SnackBarStatus.success);

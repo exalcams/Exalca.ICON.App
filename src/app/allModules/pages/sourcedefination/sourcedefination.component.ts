@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { fuseAnimations } from '@fuse/animations';
 import { MatTableDataSource, MatIconRegistry, MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
-import { SRCI, SourceView, AdapterH, ADAPTERI } from 'app/models/icon.models';
+import { SRCI, SourceView, AdapterH, ADAPTERI, AdapterItemRule, SRCH, SRCHView } from 'app/models/icon.models';
 import { FormArray, AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -24,36 +24,26 @@ import { NotificationDialogComponent } from 'app/notifications/notification-dial
   animations: fuseAnimations
 })
 export class SourcedefinationComponent implements OnInit {
-  AdapterItemColumns: string[] = [
-    'Item',
-    'Field1',
-    'Field2',
-    'FileExt',
-    'Action',
-  ];
-  adapterdisplayname:string[]=[
-'Key',
-'Value',
-  ];
   authenticationDetails: AuthenticationDetails;
   MenuItems: string[];
-  AllTypes: string[];
   CurrentUserName: string;
   CurrentUserID: Guid;
   CurrentUserRole = '';
   CurrentDate: Date;
-  AdopterCreationFormGroup: FormGroup;
-  AdapterItemFormArray: FormArray = this._formBuilder.array([]);
-  AdapterItemDataSource = new BehaviorSubject<AbstractControl[]>([]);
-  AdaptereaderList: ADAPTERI[] = [];
-  AdapterHeaderDataSource: MatTableDataSource<ADAPTERI>;
-  SelectedAdapter: SourceView;
   notificationSnackBarComponent: NotificationSnackBarComponent;
   IsProgressBarVisibile: boolean;
-  fileMapperMainFormGroup: FormGroup;
-  AdapterItemList: SRCI[];
-  SourceDataSource: MatTableDataSource<SRCI>;
-  AllAdapters: ADAPTERI[] = [];
+  SourceCreationFormGroup: FormGroup;
+  SourceItemColumns: string[] = ['Field1', 'Field2', 'FileExt', 'TrainingID', 'Action'];
+  SourceItemFormArray: FormArray = this._formBuilder.array([]);
+  SourceItemDataSource = new BehaviorSubject<AbstractControl[]>([]);
+  SelectedSource: SRCHView;
+  SelectedSourceID: number;
+  SourceItemList: SRCI[];
+  AllAdapterItemRules: AdapterItemRule[] = [];
+  AllTypes: string[];
+  AllTrainingIDs: string[];
+  AllSources: SRCH[] = [];
+  searchText = '';
   constructor(
     private _router: Router,
     matIconRegistry: MatIconRegistry,
@@ -61,15 +51,18 @@ export class SourcedefinationComponent implements OnInit {
     public snackBar: MatSnackBar,
     private _formBuilder: FormBuilder,
     private _masterService: MasterService,
-    private _sourceService: SourcedefinationService,
+    private _SourceService: SourcedefinationService,
+    private _adapterService: AdapterService,
     private dialog: MatDialog,
     private _datePipe: DatePipe
   ) {
     this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
-    this.SelectedAdapter = new SourceView();
-   }
+    this.IsProgressBarVisibile = false;
+    this.SelectedSource = new SRCHView();
+    this.SelectedSourceID = 0;
+  }
 
-   ngOnInit(): void {
+  ngOnInit(): void {
     const retrievedObject = localStorage.getItem('authorizationData');
     if (retrievedObject) {
       this.authenticationDetails = JSON.parse(retrievedObject) as AuthenticationDetails;
@@ -84,65 +77,62 @@ export class SourcedefinationComponent implements OnInit {
     } else {
       this._router.navigate(['/auth/login']);
     }
-    this.fileMapperMainFormGroup = this._formBuilder.group({
-      Type: ['', Validators.required],
-      Title:['',Validators.required],
-      SourceItems: this.AdapterItemFormArray
-     
+    this.SourceCreationFormGroup = this._formBuilder.group({
+      Title: ['', Validators.required],
+      // Type: ['', Validators.required],
+      AdapterID: ['', Validators.required],
+      SourceItems: this.SourceItemFormArray
     });
-    this.AllTypes = ['Email', 'FTP'];
-    this.GetAllAdapter();
+    // this.AllTypes = ['xml', 'xlsx', 'csv'];
+    this.AllTrainingIDs = ['1234', '1345', '14567', '345', '567'];
+    this.GetAllAdapterItemRule();
+    this.GetAllSource();
   }
+
+
   ResetForm(): void {
-    this.fileMapperMainFormGroup.reset();
-    Object.keys(this.fileMapperMainFormGroup.controls).forEach(key => {
-      this.fileMapperMainFormGroup.get(key).markAsUntouched();
+    this.SourceCreationFormGroup.reset();
+    Object.keys(this.SourceCreationFormGroup.controls).forEach(key => {
+      this.SourceCreationFormGroup.get(key).markAsUntouched();
     });
   }
   ResetControl(): void {
     this.ResetSourceItems();
     this.ResetForm();
-    this.SelectedAdapter = new SourceView();
-    this.SelectedAdapter.SourceItemList = [];
-    this.AdapterItemList = [];
-
+    this.SelectedSourceID = 0;
+    this.SelectedSource = new SRCHView();
+    this.SelectedSource.SRCIList = [];
+    this.SourceItemList = [];
   }
+
   ClearFormArray = (formArray: FormArray) => {
     while (formArray.length !== 0) {
       formArray.removeAt(0);
     }
   }
   ResetSourceItems(): void {
-    this.ClearFormArray(this.AdapterItemFormArray);
-    this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
-    this.GetAllAdapter();
-    
-
+    this.ClearFormArray(this.SourceItemFormArray);
+    this.SourceItemDataSource.next(this.SourceItemFormArray.controls);
   }
-  GetAllAdapter(): void {
-    this._sourceService.GetAllAdapter().subscribe(
-      (data) => {
-        this.AllAdapters = data as ADAPTERI[];
-        if (this.AllAdapters.length && this.AllAdapters.length > 0) {
 
+  GetAllAdapterItemRule(): void {
+    this._adapterService.GetAllAdapterItemRule().subscribe(
+      (data) => {
+        this.AllAdapterItemRules = data as AdapterItemRule[];
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  GetAllSource(): void {
+    this._SourceService.GetAllSource().subscribe(
+      (data) => {
+        this.AllSources = data as SRCH[];
+        if (this.AllSources.length && this.AllSources.length > 0) {
+          this.LoadSelectedSRCH(this.AllSources[0]);
         }
-        console.log(this.AllAdapters);
-      },
-      (err) => {
-        console.error(err);
-      }
-    );
-  }
-  AddAdapterItem(): void {
-    this.AddAdapterItemFormGroup();
-  }
-  SelcetAdopter(value:number):void{
-    this._sourceService.GetAdapterById(value).subscribe(
-      (data) => {
-        this.AdaptereaderList = data as ADAPTERI[];
-        this.AdapterHeaderDataSource = new MatTableDataSource(this.AdaptereaderList);
-       // this.AdapterHeaderDataSource.sort = this.sort;
-        console.log(this.AdaptereaderList);
       },
       (err) => {
         console.error(err);
@@ -150,64 +140,166 @@ export class SourcedefinationComponent implements OnInit {
     );
   }
 
-  RemoveAdapterItem(index: number): void {
-    if (this.AdopterCreationFormGroup.enabled) {
-      if (this.AdapterItemFormArray.length > 0) {
-        this.AdapterItemFormArray.removeAt(index);
-        this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+  // TypeSelected(event): void {
+  //   const selectedType = event.value;
+  //   if (selectedType) {
+  //     this.ResetSourceItems();
+  //     if (this.SelectedSource && this.SelectedSource.SourceID &&
+  //       this.SelectedSource.Type === selectedType &&
+  //       this.SourceItemList && this.SourceItemList.length) {
+  //       this.SourceItemList.forEach(x => {
+  //         this.SetItemValues(x);
+  //       });
+  //     } else {
+  //       const filteredSourceTypes = this.AllSourceTypes.filter(x => x.Type === selectedType);
+  //       filteredSourceTypes.forEach(itr => {
+  //         const x = new SourceI();
+  //         x.Key = itr.Key;
+  //         x.IsRemovable = false;
+  //         this.SetItemValues(x);
+  //       });
+  //     }
+  //   }
+  // }
+
+  LoadSelectedSRCH(Source: SRCH): void {
+    this.SelectedSourceID = Source.srcID;
+    this.SelectedSource = new SRCHView();
+    this.SelectedSource.srcID = Source.srcID;
+    // this.SelectedSource.Type = Source.Type;
+    this.SourceCreationFormGroup.get('Title').patchValue(Source.Title);
+    // this.SourceCreationFormGroup.get('Type').patchValue(Source.Type);
+    this.SourceCreationFormGroup.get('AdapterID').patchValue(Source.AdapterID);
+    this.ResetSourceItems();
+    this.GetAllSourceItemsBySourceID();
+  }
+
+  GetAllSourceItemsBySourceID(): void {
+    this._SourceService.GetAllSourceItemsBySourceID(this.SelectedSource.srcID).subscribe(
+      (data) => {
+        this.SourceItemList = data as SRCI[];
+        this.SourceItemList.forEach(x => {
+          this.SetItemValues(x);
+        });
+      },
+      (err) => {
+        console.error(err);
+      }
+    );
+  }
+
+  SetItemValues(adpterItem: SRCI): void {
+    const row = this._formBuilder.group({
+      Field1: [adpterItem.Field1, Validators.required],
+      Field2: [adpterItem.Field1, Validators.required],
+      // Rule: [RuleValue, Validators.required],
+      FileExt: [adpterItem.FileExt],
+      TrainingID: [adpterItem.TrainingID, Validators.required],
+    });
+    this.SourceItemFormArray.push(row);
+    this.SourceItemDataSource.next(this.SourceItemFormArray.controls);
+  }
+
+  AddSourceItem(): void {
+    this.AddSourceItemFormGroup();
+  }
+
+  RemoveSourceItem(index: number): void {
+    if (this.SourceCreationFormGroup.enabled) {
+      if (this.SourceItemFormArray.length > 0) {
+        this.SourceItemFormArray.removeAt(index);
+        this.SourceItemDataSource.next(this.SourceItemFormArray.controls);
       } else {
         this.notificationSnackBarComponent.openSnackBar('no items to delete', SnackBarStatus.warning);
       }
     }
   }
 
-  AddAdapterItemFormGroup(): void {
+  AddSourceItemFormGroup(): void {
     const row = this._formBuilder.group({
-      Item: ['', Validators.required],
-      Field1: ['',Validators.required],
-      Field2: ['',Validators.required],
-      FileExt: ['',Validators.required],
+      Field1: ['', Validators.required],
+      Field2: ['', Validators.required],
+      FileExt: [''],
+      TrainingID: ['', Validators.required],
     });
-    this.AdapterItemFormArray.insert(0, row);
-    this.AdapterItemDataSource.next(this.AdapterItemFormArray.controls);
+    this.SourceItemFormArray.push(row);
+    // this.SourceItemFormArray.insert(0, row);
+    this.SourceItemDataSource.next(this.SourceItemFormArray.controls);
   }
 
-  SubmitClicked():void{
-    // console.log(this.fileMapperMainFormGroup.get('Type').value);
-    // console.log(this.fileMapperMainFormGroup.get('Title').value);
-    if (this.fileMapperMainFormGroup.valid) {
-      const AdapterItemsArry = this.fileMapperMainFormGroup.get('SourceItems') as FormArray;
-      console.log(AdapterItemsArry.value);
-      if (AdapterItemsArry.length <= 0) {
+  SubmitClicked(): void {
+    if (this.SourceCreationFormGroup.valid) {
+      const SourceItemsArry = this.SourceCreationFormGroup.get('SourceItems') as FormArray;
+      if (SourceItemsArry.length <= 0) {
         this.notificationSnackBarComponent.openSnackBar('Please add values', SnackBarStatus.danger);
       } else {
         this.GetHeaderValues();
         this.GetItemValues();
-        this.CheckForDuplicateParamID();
+        this.CheckForDuplicateField1();
       }
     } else {
-      this.ShowValidationErrors(this.fileMapperMainFormGroup);
+      this.ShowValidationErrors(this.SourceCreationFormGroup);
     }
   }
-  GetHeaderValues(): void {
-    this.SelectedAdapter = new SourceView();
-    this.SelectedAdapter.AdapterID = this.fileMapperMainFormGroup.get('Type').value;
-    this.SelectedAdapter.title=this.fileMapperMainFormGroup.get('Title').value;
 
+  CheckForDuplicateField1(): void {
+    // const valueArr = this.SelectedSource.SRCIList.map(x => x.Field1);
+    // const isDuplicate = valueArr.some(function (item, idx): boolean {
+    //   return valueArr.indexOf(item) !== idx;
+    // });
+    // return isDuplicate;
+
+    const uniq = this.SelectedSource.SRCIList
+      .map((x) => {
+        return {
+          count: 1,
+          Field1: x.Field1
+        };
+      })
+      .reduce((a, b) => {
+        a[b.Field1] = (a[b.Field1] || 0) + b.count;
+        return a;
+      }, {});
+
+    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
+    if (duplicates && duplicates.length && duplicates.length > 0) {
+      const duplicateField1s = duplicates.join();
+      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Param ID(s) : ${duplicateField1s}`, SnackBarStatus.danger);
+    } else {
+      if (this.SelectedSource.srcID) {
+        const Actiontype = 'Update';
+        const Catagory = 'Source';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      } else {
+        const Actiontype = 'Create';
+        const Catagory = 'Source';
+        this.OpenConfirmationDialog(Actiontype, Catagory);
+      }
+    }
   }
-  GetItemValues(): void {
-    this.AdapterItemList = [];
-    this.SelectedAdapter.SourceItemList = [];
-    const AdapterItemsArr = this.fileMapperMainFormGroup.get('SourceItems') as FormArray;
-    AdapterItemsArr.controls.forEach((x, i) => {
-      const AdapterItem: SRCI = new SRCI();
-      // AdapterItem. = this.SelectedAdapter.srcID;
-      AdapterItem.Item = x.get('Item').value;
-      AdapterItem.Field1 = x.get('Field1').value;
-      AdapterItem.Field2 = x.get('Field2').value;
-      AdapterItem.FileExt = x.get('FileExt').value;
-      this.SelectedAdapter.SourceItemList.push(AdapterItem);
-    });
+
+  OpenConfirmationDialog(Actiontype: string, Catagory: string): void {
+    const dialogConfig: MatDialogConfig = {
+      data: {
+        Actiontype: Actiontype,
+        Catagory: Catagory
+      },
+    };
+    const dialogRef = this.dialog.open(NotificationDialogComponent, dialogConfig);
+    dialogRef.afterClosed().subscribe(
+      result => {
+        if (result) {
+          if (Actiontype === 'Create') {
+            this.CreateSource();
+          }
+          else if (Actiontype === 'Update') {
+            this.UpdateSource();
+          }
+          else if (Actiontype === 'Approve') {
+            // this.ApproveHeader();
+          }
+        }
+      });
   }
   ShowValidationErrors(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
@@ -236,72 +328,15 @@ export class SourcedefinationComponent implements OnInit {
       }
     });
   }
-  CheckForDuplicateParamID(): void {
-    // const valueArr = this.SelectedTransform.TRFIList.map(x => x.paramID);
-    // const isDuplicate = valueArr.some(function (item, idx): boolean {
-    //   return valueArr.indexOf(item) !== idx;
-    // });
-    // return isDuplicate;
 
-    const uniq = this.SelectedAdapter.SourceItemList
-      .map((x) => {
-        return {
-          count: 1,
-          Key: x.Item
-        };
-      })
-      .reduce((a, b) => {
-        a[b.Key] = (a[b.Key] || 0) + b.count;
-        return a;
-      }, {});
-
-    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
-    if (duplicates && duplicates.length && duplicates.length > 0) {
-      const duplicateKeys = duplicates.join();
-      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
-    } else {
-      if (this.SelectedAdapter.AdapterID) {
-        const Actiontype = 'Update';
-        const Catagory = 'Template';
-        this.OpenConfirmationDialog(Actiontype, Catagory);
-      } else {
-        const Actiontype = 'Create';
-        const Catagory = 'Template';
-        this.OpenConfirmationDialog(Actiontype, Catagory);
-      }
-    }
-  }
-  OpenConfirmationDialog(Actiontype: string, Catagory: string): void {
-    const dialogConfig: MatDialogConfig = {
-      data: {
-        Actiontype: Actiontype,
-        Catagory: Catagory
-      },
-    };
-    const dialogRef = this.dialog.open(NotificationDialogComponent, dialogConfig);
-    dialogRef.afterClosed().subscribe(
-      result => {
-        if (result) {
-          if (Actiontype === 'Create') {
-            this.CreateAdapter();
-          }
-          else if (Actiontype === 'Update') {
-            this.CreateAdapter();
-          }
-          else if (Actiontype === 'Approve') {
-            // this.ApproveHeader();
-          }
-        }
-      });
-  }
-  CreateAdapter(): void {
+  CreateSource(): void {
     this.IsProgressBarVisibile = true;
-    this._sourceService.CreateSource(this.SelectedAdapter).subscribe(
+    this._SourceService.CreateSource(this.SelectedSource).subscribe(
       (data) => {
         this.notificationSnackBarComponent.openSnackBar('Source details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
         this.ResetControl();
-        this.GetAllAdapter();
+        this.GetAllSource();
       },
       (err) => {
         console.error(err);
@@ -311,14 +346,14 @@ export class SourcedefinationComponent implements OnInit {
     );
   }
 
-  UpdateAdapter(): void {
+  UpdateSource(): void {
     this.IsProgressBarVisibile = true;
-    this._sourceService.UpdateSource(this.SelectedAdapter).subscribe(
+    this._SourceService.UpdateSource(this.SelectedSource).subscribe(
       (data) => {
         this.notificationSnackBarComponent.openSnackBar('Source details created successfully', SnackBarStatus.success);
         this.IsProgressBarVisibile = false;
         this.ResetControl();
-        this.GetAllAdapter();
+        this.GetAllSource();
       },
       (err) => {
         console.error(err);
@@ -326,6 +361,45 @@ export class SourcedefinationComponent implements OnInit {
         this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
       }
     );
+  }
+
+  // CreateSourceParaMapping(): void {
+  //   this.GetParameterValues();
+  //   this.IsProgressBarVisibile = true;
+  //   this._SourceService.CreateSourceParaMapping(this.TemplateParaMappingList).subscribe(
+  //     (data) => {
+  //       this.notificationSnackBarComponent.openSnackBar('Template details updated successfully', SnackBarStatus.success);
+  //       this.IsProgressBarVisibile = false;
+  //       this.ResetControl();
+  //     },
+  //     (err) => {
+  //       console.error(err);
+  //       this.IsProgressBarVisibile = false;
+  //       this.notificationSnackBarComponent.openSnackBar(err instanceof Object ? 'Something went wrong' : err, SnackBarStatus.danger);
+  //     }
+  //   );
+  // }
+
+  GetHeaderValues(): void {
+    // this.SelectedSource = new SRCHView();
+    this.SelectedSource.Title = this.SourceCreationFormGroup.get('Title').value;
+    // this.SelectedSource.Type = this.SourceCreationFormGroup.get('Type').value;
+    this.SelectedSource.AdapterID = this.SourceCreationFormGroup.get('AdapterID').value;
+  }
+
+  GetItemValues(): void {
+    this.SourceItemList = [];
+    this.SelectedSource.SRCIList = [];
+    const SourceItemsArr = this.SourceCreationFormGroup.get('SourceItems') as FormArray;
+    SourceItemsArr.controls.forEach((x, i) => {
+      const SourceItem: SRCI = new SRCI();
+      SourceItem.srcID = this.SelectedSource.srcID;
+      SourceItem.Field1 = x.get('Field1').value;
+      SourceItem.Field2 = x.get('Field2').value;
+      SourceItem.FileExt = x.get('FileExt').value;
+      SourceItem.TrainingID = x.get('TrainingID').value;
+      this.SelectedSource.SRCIList.push(SourceItem);
+    });
   }
 }
-//const ELEMENT_DATA1: SRCI[] = [{ srcID: 'b43a4086-ef7a-4d20-9bcf-338a3a928041', Item: '8001002118', Field1: '10', Field2: '25411.00', FileExt: 'xyz' }];
+

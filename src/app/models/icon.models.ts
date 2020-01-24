@@ -15,6 +15,7 @@ export class SRCI {
     Field1: string;
     Field2: string;
     FileExt: string;
+    TrainingID: string;
 }
 
 export class ADAPTERI {
@@ -28,9 +29,19 @@ export class ADAPTERI {
     ModifiedOn?: Date;
     ModifiedBy: string;
 }
-export class ADAPTERTYPEC {
-    Id: number;
+export class ADAPTERTYPE {
+    AdapterTypeID: number;
     Type: string;
+    VisibleField: string;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+}
+
+export class ADAPTERTYPEITEM {
+    Id: number;
+    AdapterTypeID: number;
     Key: string;
     sampleValue: string;
     VisibleField: string;
@@ -38,6 +49,23 @@ export class ADAPTERTYPEC {
     CreatedBy: string;
     ModifiedOn?: Date;
     ModifiedBy: string;
+}
+export class AdapterTypeWithItem {
+    AdapterTypeID: number;
+    Type: string;
+    VisibleField: string;
+    AdapterTypeItems: AdapterTypeItemView[];
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+}
+export class AdapterTypeItemView {
+    Id: number;
+    AdapterTypeID: number;
+    Key: string;
+    sampleValue: string;
+    VisibleField: string;
 }
 export class BOTH {
     botID: number;
@@ -77,8 +105,22 @@ export class BOTLOG {
 }
 export class SRCH {
     srcID: number;
-    title: string;
-    AdapterID: number;
+    Title: string;
+    AdapterID: Guid;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+}
+export class SRCHView {
+    srcID: number;
+    Title: string;
+    AdapterID: Guid;
+    CreatedOn: Date;
+    CreatedBy: string;
+    ModifiedOn?: Date;
+    ModifiedBy: string;
+    SRCIList: SRCI[];
 }
 export class TRFH {
     trfID: number;
@@ -148,12 +190,12 @@ export class SourceView {
 export class AdapterItemRule {
     AdapterID: number;
     Value: string;
-}   
-export class SourcdeDefinationValues{
+}
+export class SourcdeDefinationValues {
     srcID: number;
     Item: string;
     Field1: string;
     Field2: string;
     FileExt: string;
-    
+
 }

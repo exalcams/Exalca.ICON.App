@@ -4,7 +4,7 @@ import { Observable, throwError, Subject } from 'rxjs';
 import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
-import { AdapterHView, AdapterH, ADAPTERI, ADAPTERTYPEC, AdapterItemRule } from 'app/models/icon.models';
+import { AdapterHView, AdapterH, ADAPTERI, AdapterItemRule, AdapterTypeWithItem } from 'app/models/icon.models';
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +32,8 @@ export class AdapterService {
     return throwError(error.error || error.message || 'Server Error');
   }
 
-  GetAllAdapterTypes(): Observable<ADAPTERTYPEC[] | string> {
-    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Adapter/GetAllAdapterTypes`)
+  GetAllAdapterTypes(): Observable<AdapterTypeWithItem[] | string> {
+    return this._httpClient.get<AdapterTypeWithItem[]>(`${this.baseAddress}api/Adapter/GetAllAdapterTypes`)
       .pipe(catchError(this.errorHandler));
   }
 

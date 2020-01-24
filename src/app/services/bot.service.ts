@@ -71,7 +71,7 @@ export class BotService {
       .pipe(catchError(this.errorHandler));
   }
 
-  UpdateBOTStatus(botID: number, Status: string, By: Guid): Observable<BOTH | string> {
+  UpdateBOTStatus(botID: number, Status: string, By: string): Observable<BOTH | string> {
     return this._httpClient.get<BOTH>(`${this.baseAddress}api/BOT/UpdateBOTStatus?botID=${botID}&Status=${Status}&By=${By}`)
       .pipe(catchError(this.errorHandler));
   }
