@@ -7,8 +7,9 @@ import { Router } from '@angular/router';
 import { MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
 import { SnackBarStatus } from 'app/notifications/notification-snack-bar/notification-snackbar-status-enum';
 import { NotificationDialogComponent } from 'app/notifications/notification-dialog/notification-dialog.component';
-import { ADAPTERTYPEC } from 'app/models/icon.models';
+import { ADAPTERTYPE, AdapterTypeWithItem, AdapterTypeItemView } from 'app/models/icon.models';
 import { fuseAnimations } from '@fuse/animations';
+import { Guid } from 'guid-typescript';
 
 @Component({
   selector: 'app-adapter-type',
@@ -20,10 +21,14 @@ import { fuseAnimations } from '@fuse/animations';
 export class AdapterTypeComponent implements OnInit {
   MenuItems: string[];
   authenticationDetails: AuthenticationDetails;
+  CurrentUserName: string;
+  CurrentUserID: Guid;
+  CurrentUserRole: string;
   notificationSnackBarComponent: NotificationSnackBarComponent;
   IsProgressBarVisibile: boolean;
   DistinctAdapterTypes: string[] = [];
-  AllAdapterTypes: ADAPTERTYPEC[] = [];
+  AllAdapterTypes: AdapterTypeWithItem[] = [];
+  SelectedAdapterTypeWithItem: AdapterTypeWithItem;
   SelectedAdapterType: string;
   searchText = '';
   selectAdapterTypeID = 0;
@@ -45,6 +50,7 @@ export class AdapterTypeComponent implements OnInit {
       // Key: ['', Validators.required],
       // sampleValue: ['']
     });
+    this.SelectedAdapterTypeWithItem = new AdapterTypeWithItem();
   }
 
   ngOnInit(): void {
@@ -52,6 +58,9 @@ export class AdapterTypeComponent implements OnInit {
     const retrievedObject = localStorage.getItem('authorizationData');
     if (retrievedObject) {
       this.authenticationDetails = JSON.parse(retrievedObject) as AuthenticationDetails;
+      this.CurrentUserName = this.authenticationDetails.userName;
+      this.CurrentUserID = this.authenticationDetails.userID;
+      this.CurrentUserRole = this.authenticationDetails.userRole;
       this.MenuItems = this.authenticationDetails.menuItemNames.split(',');
       if (this.MenuItems.indexOf('AdapterType') < 0) {
         this.notificationSnackBarComponent.openSnackBar('You do not have permission to visit this page', SnackBarStatus.danger);
@@ -139,8 +148,8 @@ export class AdapterTypeComponent implements OnInit {
   GetAdapterTypesByType(Adapter: string): void {
     this._masterService.GetAdapterTypesByType(Adapter).subscribe(
       (data) => {
-        this.AllAdapterTypes = data as ADAPTERTYPEC[];
-        this.AllAdapterTypes.forEach(x => {
+        this.SelectedAdapterTypeWithItem = data as AdapterTypeWithItem;
+        this.SelectedAdapterTypeWithItem.AdapterTypeItems.forEach(x => {
           this.SetKeyValues(x);
         });
       },
@@ -150,7 +159,7 @@ export class AdapterTypeComponent implements OnInit {
     );
   }
 
-  SetKeyValues(adpterItem: ADAPTERTYPEC): void {
+  SetKeyValues(adpterItem: AdapterTypeItemView): void {
     const row = this._formBuilder.group({
       Key: [adpterItem.Key, Validators.required],
       sampleValue: [adpterItem.sampleValue],
@@ -180,39 +189,7 @@ export class AdapterTypeComponent implements OnInit {
     this.KeysFormArray.push(row);
   }
 
-  CheckForDuplicateKey(): void {
-    // const valueArr = this.SelectedTransform.TRFIList.map(x => x.paramID);
-    // const isDuplicate = valueArr.some(function (item, idx): boolean {
-    //   return valueArr.indexOf(item) !== idx;
-    // });
-    // return isDuplicate;
 
-    const uniq = this.AllAdapterTypes
-      .map((x) => {
-        return {
-          count: 1,
-          Key: x.Key
-        };
-      })
-      .reduce((a, b) => {
-        a[b.Key] = (a[b.Key] || 0) + b.count;
-        return a;
-      }, {});
-
-    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
-    if (duplicates && duplicates.length && duplicates.length > 0) {
-      const duplicateKeys = duplicates.join();
-      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
-    } else {
-      if (this.SelectedAdapterType) {
-        const Actiontype = 'Update';
-        this.OpenConfirmationDialog(Actiontype);
-      } else {
-        const Actiontype = 'Create';
-        this.OpenConfirmationDialog(Actiontype);
-      }
-    }
-  }
 
   // loadSelectedAdapterType(AdapterType: ADAPTERTYPEC): void {
   //   this.SelectedAdapterType = AdapterType;
@@ -226,7 +203,7 @@ export class AdapterTypeComponent implements OnInit {
     if (this.AdapterTypeFormGroup.valid) {
       this.GetAdapterTypeValues();
       this.GetKeyValues();
-      if (this.AllAdapterTypes.length && this.AllAdapterTypes.length > 0) {
+      if (this.SelectedAdapterTypeWithItem.AdapterTypeItems.length && this.SelectedAdapterTypeWithItem.AdapterTypeItems.length > 0) {
         this.CheckForDuplicateKey();
       } else {
         this.notificationSnackBarComponent.openSnackBar('Please add atleast one item for key', SnackBarStatus.danger);
@@ -319,30 +296,66 @@ export class AdapterTypeComponent implements OnInit {
   }
 
   GetAdapterTypeValues(): void {
+    this.SelectedAdapterTypeWithItem.Type = this.AdapterTypeFormGroup.get('Type').value;
     // this.SelectedAdapterType.Type = this.AdapterTypeFormGroup.get('Type').value;
     // this.SelectedAdapterType.Key = this.AdapterTypeFormGroup.get('Key').value;
     // this.SelectedAdapterType.sampleValue = this.AdapterTypeFormGroup.get('sampleValue').value;
   }
 
   GetKeyValues(): void {
-    const selAdapterType = this.AdapterTypeFormGroup.get('Type').value;
-    const CurrentUserID = this.authenticationDetails.userID.toString();
-    this.AllAdapterTypes = [];
+    // const selAdapterType = this.AdapterTypeFormGroup.get('Type').value;
+    // const CurrentUserID = this.authenticationDetails.userID.toString();
+    // this.AllAdapterTypes = [];
+    this.SelectedAdapterTypeWithItem.AdapterTypeItems = [];
     const TransformItemsArr = this.AdapterTypeFormGroup.get('Keys') as FormArray;
     TransformItemsArr.controls.forEach((x, i) => {
-      const TransformItem: ADAPTERTYPEC = new ADAPTERTYPEC();
-      TransformItem.Type = selAdapterType;
+      const TransformItem: AdapterTypeItemView = new AdapterTypeItemView();
       TransformItem.Key = x.get('Key').value;
       TransformItem.sampleValue = x.get('sampleValue').value;
-      TransformItem.CreatedBy = CurrentUserID;
-      this.AllAdapterTypes.push(TransformItem);
+      // this.AllAdapterTypes.push(TransformItem);
+      this.SelectedAdapterTypeWithItem.AdapterTypeItems.push(TransformItem);
     });
+  }
+
+  CheckForDuplicateKey(): void {
+    // const valueArr = this.SelectedTransform.TRFIList.map(x => x.paramID);
+    // const isDuplicate = valueArr.some(function (item, idx): boolean {
+    //   return valueArr.indexOf(item) !== idx;
+    // });
+    // return isDuplicate;
+
+    const uniq = this.SelectedAdapterTypeWithItem.AdapterTypeItems
+      .map((x) => {
+        return {
+          count: 1,
+          Key: x.Key
+        };
+      })
+      .reduce((a, b) => {
+        a[b.Key] = (a[b.Key] || 0) + b.count;
+        return a;
+      }, {});
+
+    const duplicates = Object.keys(uniq).filter((a) => uniq[a] > 1);
+    if (duplicates && duplicates.length && duplicates.length > 0) {
+      const duplicateKeys = duplicates.join();
+      this.notificationSnackBarComponent.openSnackBar(`Please remove duplicate Key(s) : ${duplicateKeys}`, SnackBarStatus.danger);
+    } else {
+      if (this.SelectedAdapterType) {
+        const Actiontype = 'Update';
+        this.OpenConfirmationDialog(Actiontype);
+      } else {
+        const Actiontype = 'Create';
+        this.OpenConfirmationDialog(Actiontype);
+      }
+    }
   }
 
 
   CreateAdapterType(): void {
+    this.SelectedAdapterTypeWithItem.CreatedBy = this.CurrentUserID.toString();
     this.IsProgressBarVisibile = true;
-    this._masterService.CreateAdapterType(this.AllAdapterTypes).subscribe(
+    this._masterService.CreateAdapterType(this.SelectedAdapterTypeWithItem).subscribe(
       (data) => {
         this.IsProgressBarVisibile = false;
         this.notificationSnackBarComponent.openSnackBar('Adapter type created successfully', SnackBarStatus.success);
@@ -357,8 +370,9 @@ export class AdapterTypeComponent implements OnInit {
   }
 
   UpdateAdapterType(): void {
+    this.SelectedAdapterTypeWithItem.ModifiedBy = this.CurrentUserID.toString();
     this.IsProgressBarVisibile = true;
-    this._masterService.UpdateAdapterType(this.AllAdapterTypes).subscribe(
+    this._masterService.UpdateAdapterType(this.SelectedAdapterTypeWithItem).subscribe(
       (data) => {
         this.IsProgressBarVisibile = false;
         this.notificationSnackBarComponent.openSnackBar('Adapter type updated successfully', SnackBarStatus.success);
@@ -374,7 +388,7 @@ export class AdapterTypeComponent implements OnInit {
 
   DeleteAdapterType(): void {
     this.IsProgressBarVisibile = true;
-    this._masterService.DeleteAdapterType(this.AllAdapterTypes).subscribe(
+    this._masterService.DeleteAdapterType(this.SelectedAdapterTypeWithItem).subscribe(
       (data) => {
         this.IsProgressBarVisibile = false;
         this.notificationSnackBarComponent.openSnackBar('Adapter type deleted successfully', SnackBarStatus.success);

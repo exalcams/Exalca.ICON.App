@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable, throwError } from 'rxjs';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
-import { AdapterH, ADAPTERI, SourceView, SourcdeDefinationValues } from 'app/models/icon.models';
+import { AdapterH, ADAPTERI, SourceView, SourcdeDefinationValues, SRCH, SRCI, SRCHView } from 'app/models/icon.models';
 import { catchError } from 'rxjs/operators';
 import { SourceAdapterView } from 'app/models/SRC_H';
 
@@ -38,11 +38,8 @@ export class SourcedefinationService {
     return this._httpClient.get<ADAPTERI[]>(`${this.baseAddress}api/Source/GetAdapterById?AdapterID=${AdapterID}`)
       .pipe(catchError(this.errorHandler));
   }
-  GetAllSourceAdapterView(): Observable<SourceAdapterView[] | string> {
-    return this._httpClient.get<SourceAdapterView[]>(`${this.baseAddress}api/Source/GetAllSourceAdapterView`)
-    .pipe(catchError(this.errorHandler));
-  }
-  CreateSource(adapterHView: SourceView): Observable<any> {
+
+  CreateSource(adapterHView: SRCHView): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Source/CreateSource`,
       adapterHView,
       {
@@ -53,7 +50,7 @@ export class SourcedefinationService {
       .pipe(catchError(this.errorHandler));
   }
 
-  UpdateSource(adapterHView: SourceView): Observable<any> {
+  UpdateSource(adapterHView: SRCHView): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Source/UpdateSource`,
       adapterHView,
       {
@@ -61,6 +58,18 @@ export class SourcedefinationService {
           'Content-Type': 'application/json'
         })
       })
+      .pipe(catchError(this.errorHandler));
+  }
+  GetAllSource(): Observable<SRCH[] | string> {
+    return this._httpClient.get<SRCH[]>(`${this.baseAddress}api/Source/GetAllSource`)
+      .pipe(catchError(this.errorHandler));
+  }
+  GetAllSourceAdapterView(): Observable<SourceAdapterView[] | string> {
+    return this._httpClient.get<SourceAdapterView[]>(`${this.baseAddress}api/Source/GetAllSourceAdapterView`)
+      .pipe(catchError(this.errorHandler));
+  }
+  GetAllSourceItemsBySourceID(SourceID: number): Observable<SRCI[] | string> {
+    return this._httpClient.get<SRCI[]>(`${this.baseAddress}api/Source/GetAllSourceItemsBySourceID?SourceID=${SourceID}`)
       .pipe(catchError(this.errorHandler));
   }
 }

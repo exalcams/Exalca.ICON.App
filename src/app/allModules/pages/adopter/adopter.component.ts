@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar, MatDialog, MatDialogConfig } from '@angular/material';
-import { AdapterHView, ADAPTERI, AdapterH, ADAPTERTYPEC } from 'app/models/icon.models';
+import { AdapterHView, ADAPTERI, AdapterH, AdapterTypeWithItem } from 'app/models/icon.models';
 import { AuthenticationDetails } from 'app/models/master';
 import { Guid } from 'guid-typescript';
 import { NotificationSnackBarComponent } from 'app/notifications/notification-snack-bar/notification-snack-bar.component';
@@ -35,7 +35,7 @@ export class AdopterComponent implements OnInit {
   SelectedAdapter: AdapterHView;
   SelectedAdapterID: number;
   AdapterItemList: ADAPTERI[];
-  AllAdapterTypes: ADAPTERTYPEC[];
+  AllAdapterTypes: AdapterTypeWithItem[];
   AllTypes: string[];
   AllAdapters: AdapterH[] = [];
   searchText = '';
@@ -44,7 +44,7 @@ export class AdopterComponent implements OnInit {
     public snackBar: MatSnackBar,
     private _formBuilder: FormBuilder,
     private _adapterService: AdapterService,
-    private dialog: MatDialog  ) {
+    private dialog: MatDialog) {
     this.notificationSnackBarComponent = new NotificationSnackBarComponent(this.snackBar);
     this.IsProgressBarVisibile = false;
     this.SelectedAdapter = new AdapterHView();
@@ -104,7 +104,7 @@ export class AdopterComponent implements OnInit {
   GetAllAdapterTypes(): void {
     this._adapterService.GetAllAdapterTypes().subscribe(
       (data) => {
-        this.AllAdapterTypes = data as ADAPTERTYPEC[];
+        this.AllAdapterTypes = data as AdapterTypeWithItem[];
         if (this.AllAdapterTypes.length && this.AllAdapterTypes.length > 0) {
           const AllTypess = this.AllAdapterTypes.map(item => item.Type);
           this.AllTypes = AllTypess.filter((item, i, ar) => ar.indexOf(item) === i);
@@ -142,12 +142,14 @@ export class AdopterComponent implements OnInit {
         });
       } else {
         const filteredAdapterTypes = this.AllAdapterTypes.filter(x => x.Type === selectedType);
-        filteredAdapterTypes.forEach(itr => {
-          const x = new ADAPTERI();
-          x.Key = itr.Key;
-          x.Value = itr.sampleValue;
-          x.IsRemovable = false;
-          this.SetItemValues(x);
+        filteredAdapterTypes.forEach(itrr => {
+          itrr.AdapterTypeItems.forEach(itr => {
+            const x = new ADAPTERI();
+            x.Key = itr.Key;
+            x.Value = itr.sampleValue;
+            x.IsRemovable = false;
+            this.SetItemValues(x);
+          });
         });
       }
     }

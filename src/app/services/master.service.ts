@@ -5,7 +5,7 @@ import { _MatChipListMixinBase } from '@angular/material';
 import { AuthService } from './auth.service';
 import { catchError } from 'rxjs/operators';
 import { MenuApp, RoleWithApp, UserWithRole, UserNotification } from 'app/models/master';
-import { ADAPTERTYPEC } from 'app/models/icon.models';
+import { AdapterTypeWithItem } from 'app/models/icon.models';
 
 @Injectable({
   providedIn: 'root'
@@ -196,7 +196,7 @@ export class MasterService {
 
 
   // Adapter
-  CreateAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+  CreateAdapterType(Adapter: AdapterTypeWithItem): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Master/CreateAdapterType`,
       Adapter,
       {
@@ -212,18 +212,18 @@ export class MasterService {
       .pipe(catchError(this.errorHandler));
   }
 
-  GetAllAdapterTypes(): Observable<ADAPTERTYPEC[] | string> {
-    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Master/GetAllAdapterTypes`)
+  GetAllAdapterTypes(): Observable<AdapterTypeWithItem[] | string> {
+    return this._httpClient.get<AdapterTypeWithItem[]>(`${this.baseAddress}api/Master/GetAllAdapterTypes`)
       .pipe(catchError(this.errorHandler));
   }
 
-  GetAdapterTypesByType(Type: string): Observable<ADAPTERTYPEC[] | string> {
-    return this._httpClient.get<ADAPTERTYPEC[]>(`${this.baseAddress}api/Master/GetAdapterTypesByType?Type=${Type}`)
+  GetAdapterTypesByType(Type: string): Observable<AdapterTypeWithItem | string> {
+    return this._httpClient.get<AdapterTypeWithItem>(`${this.baseAddress}api/Master/GetAdapterTypesByType?Type=${Type}`)
       .pipe(catchError(this.errorHandler));
   }
 
 
-  UpdateAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+  UpdateAdapterType(Adapter: AdapterTypeWithItem): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Master/UpdateAdapterType`,
       Adapter,
       {
@@ -234,7 +234,7 @@ export class MasterService {
       .pipe(catchError(this.errorHandler));
   }
 
-  DeleteAdapterType(Adapter: ADAPTERTYPEC[]): Observable<any> {
+  DeleteAdapterType(Adapter: AdapterTypeWithItem): Observable<any> {
     return this._httpClient.post<any>(`${this.baseAddress}api/Master/DeleteAdapterType`,
       Adapter,
       {
