@@ -178,9 +178,11 @@ export class TransformComponent implements OnInit {
     this._transformService.GetAllTransformItemsByTransformID(this.SelectedTransform.trfID).subscribe(
       (data) => {
         this.TransformItemList = data as TRFI[];
-        this.TransformItemList.forEach(x => {
-          this.SetItemValues(x);
-        });
+        if (this.TransformItemList && this.TransformItemList.length) {
+          this.TransformItemList.forEach(x => {
+            this.SetItemValues(x);
+          });
+        }
       },
       (err) => {
         console.error(err);

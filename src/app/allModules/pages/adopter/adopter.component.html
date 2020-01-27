@@ -31,7 +31,7 @@
           <mat-card *ngFor="let ada of AllAdapters | filter: searchText" class="mx-8 my-4 p-8"
             [class.highLight]="SelectedAdapterID==ada.AdapterID" (click)="LoadSelectedAdapterH(ada)">
             <div fxLayout fxLayoutAlign="space-between center">
-              <div fxFlex>{{ada.AdapterID}}</div>
+              <div fxFlex>{{ada.Title}}</div>
               <div fxFlex fxLayoutAlign="end">{{ada.CreadtedOn | date}}</div>
             </div>
             <div style="font-size: 11px;margin-bottom: 5px">
@@ -53,11 +53,14 @@
               [formGroup]="AdapterCreationFormGroup" novalidate>
               <!-- <div class="h2 mb-24"><b>Adopter</b></div> -->
               <div fxLayout="row" fxLayoutAlign="start">
-                <!-- <mat-form-field class="pl-8" fxFlex="50">
-                <input matInput placeholder="Title" >
-                
-              </mat-form-field> -->
-                <mat-form-field class="pl-8" fxFlex="50">
+                <mat-form-field class="pl-8" fxFlex>
+                  <input matInput placeholder="Title" formControlName="Title">
+                  <mat-error *ngIf="AdapterCreationFormGroup.get('Title').touched && 
+                AdapterCreationFormGroup.get('Title').hasError('required')">
+                    Title is required
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field class="pl-8" fxFlex>
                   <mat-select placeholder="Type" matInput formControlName="Type"
                     (selectionChange)="TypeSelected($event)">
                     <mat-option *ngFor="let temp of AllTypes" [value]="temp">
