@@ -84,7 +84,7 @@ export class SourcedefinationComponent implements OnInit {
       SourceItems: this.SourceItemFormArray
     });
     // this.AllTypes = ['xml', 'xlsx', 'csv'];
-    this.AllTrainingIDs = ['1234', '1345', '14567', '345', '567'];
+    this.AllTrainingIDs = ['Z000019-Naman Enterprises', 'Z000018-Nagpur Machinery And stores', '100283-Globaltrans IntemationaleGmbH '];
     this.GetAllAdapterItemRule();
     this.GetAllSource();
   }
