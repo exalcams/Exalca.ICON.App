@@ -59,13 +59,13 @@
               </div>
             </div>
             <div formArrayName="Keys">
-              <div *ngFor="let skill of AdapterTypeFormGroup.get('Keys').controls; let i=index">
+              <div *ngFor="let skill of AdapterTypeFormGroup.get('Keys')['controls']; let i=index">
                 <div [formGroupName]="i">
                   <div fxLayout="row wrap" fxLayoutAlign="start" fxFlex>
                     <mat-form-field class="px-4" fxFlex="40">
                       <input matInput placeholder="Key" formControlName="Key">
                       <mat-error
-                        *ngIf="AdapterTypeFormGroup.get('Keys').controls[i].get('Key').touched && AdapterTypeFormGroup.get('Keys').controls[i].get('Key').hasError('required')">
+                        *ngIf="AdapterTypeFormGroup.get('Keys')['controls'][i].get('Key').touched && AdapterTypeFormGroup.get('Keys')['controls'][i].get('Key').hasError('required')">
                         Type required</mat-error>
                     </mat-form-field>
                     <mat-form-field class="px-4" fxFlex="50">
