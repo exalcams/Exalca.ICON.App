@@ -257,7 +257,7 @@ export class LoginComponent implements OnInit {
       this.children.push(
         {
           id: 'adopter',
-          title: 'Adopter',
+          title: 'Adapter',
           translate: 'NAV.SAMPLE.TITLE',
           type: 'item',
           icon: 'runIcon',

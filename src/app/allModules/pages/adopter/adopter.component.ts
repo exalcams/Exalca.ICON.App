@@ -67,6 +67,7 @@ export class AdopterComponent implements OnInit {
       this._router.navigate(['/auth/login']);
     }
     this.AdapterCreationFormGroup = this._formBuilder.group({
+      Title: ['', Validators.required],
       Type: ['', Validators.required],
       AdapterItems: this.AdapterItemFormArray
     });
@@ -159,8 +160,10 @@ export class AdopterComponent implements OnInit {
     this.SelectedAdapterID = adapter.AdapterID;
     this.SelectedAdapter = new AdapterHView();
     this.SelectedAdapter.AdapterID = adapter.AdapterID;
+    this.SelectedAdapter.Title = adapter.Title;
     this.SelectedAdapter.Type = adapter.Type;
     this.AdapterCreationFormGroup.get('Type').patchValue(adapter.Type);
+    this.AdapterCreationFormGroup.get('Title').patchValue(adapter.Title);
     // this.AdapterCreationFormGroup.get('Type').disable();
     this.ResetAdapterItems();
     this.GetAllAdapterItemsByAdapterID();
@@ -375,6 +378,7 @@ export class AdopterComponent implements OnInit {
 
   GetHeaderValues(): void {
     // this.SelectedAdapter = new AdapterHView();
+    this.SelectedAdapter.Title = this.AdapterCreationFormGroup.get('Title').value;
     this.SelectedAdapter.Type = this.AdapterCreationFormGroup.get('Type').value;
   }
 
